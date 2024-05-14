@@ -163,3 +163,7 @@ print([str(_) for _ in failed_lines])
     ['2649  1715524869.402514 [00007fd4e291986b] this-is-invalid-line :)']
 """
 ```
+
+## design
+
+关于这个小工具的实现思路见`doc/design/`, 例如[record-parsing](./design/record-parsing.md)
