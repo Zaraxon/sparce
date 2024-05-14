@@ -103,7 +103,6 @@ class CompletionStatus:
                 self.former, self.latter = True, False
                 self._line = line[:m.start()]            
 
-
 class SyscallFrame:
     """
         
@@ -129,7 +128,6 @@ class SyscallFrame:
             pass # 这部分在CompletionStatus做了
             if not hasattr(self, 'syscall'):
                 raise SyscallParsingFailGeneralException(self.origin_line)
-
 
 class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, SyscallFrame):
 

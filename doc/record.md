@@ -1,6 +1,8 @@
 
 ## Record
-sparce/record 中为可以产生的
+sparce/record 中包括了对strace line处理生成的结构化数据的类. 它们既是结构化数据的构造类, 也是对strace line的解析类. 
+
+它们的设计见[record-parsing](./design/record-parsing.md)
 
 ### SyscallRecord SyscallRecordNoArg
 
