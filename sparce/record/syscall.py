@@ -36,10 +36,10 @@ class SyscallSuffix:
         提取返回值, 错误码, 和对错误的解释
 
     """
-    ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS']
+    ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS', 'ECONNREFUSED']
 
     def process(self):
-        
+
         line: str = self._line
 
         self.retval, self.errorcode, self.errordesc = None, None, None
