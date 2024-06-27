@@ -35,6 +35,8 @@ class SyscallSuffix:
         
         提取返回值, 错误码, 和对错误的解释
 
+        补充: -T syscall时间, 针对_newselect的(in ..., left ...)
+
     """
     ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS', 'ECONNREFUSED']
 
@@ -52,17 +54,18 @@ class SyscallSuffix:
         
         patterns = {
             'RETVAL': '(0x0|0|00|(\-?[1-9][0-9]*))|(\-?0x[1-9a-fA-F][0-9a-fA-F]*)|(\-?0[1-7][0-7]*)|(\?)',
+            'SELECTINFO': '\(in\s*\[[0-9]+\](,\s*left\s*\{[0-9]+,\s*[0-9]+\})*\)',
+            'SYSCALLTIME': '<[0-9]+\.[0-9]+>',
             'ERRORCODE': '|'.join(self.ERROR_CODES),
-            'ERRORDESC': '.*'
+            'ERRORDESC': '\((?!in).*?\)'
         }
-
-        pattern = f'^\s*(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(\((?P<ERRORDESC>{patterns["ERRORDESC"]})\))?\s*$'
+        pattern = f'^\s*(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SELECTINFO>{patterns["SELECTINFO"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
         m = re.search(pattern, line)
         if m is not None:
             d = m.groupdict()
-            self.retval, self.errorcode, self.errordesc = \
-                d.get('RETVAL'), d.get('ERRORCODE'), d.get('ERRORDESC')
-            if any((self.retval, self.errorcode, self.errordesc)):
+            self.retval, self.errorcode, self.errordesc, self._selectinfo, self.syscall_time = \
+                d.get('RETVAL'), d.get('ERRORCODE'), d.get('ERRORDESC'), d.get('SELECTINFO'), d.get('SYSCALLTIME')
+            if any((self.retval, self.errorcode, self.errordesc, self._selectinfo, self.syscall_time)):
                 self._line = self._line[:_eq]
 
 class CompletionStatus:

@@ -45,3 +45,32 @@ sparce/record 中包括了对strace line处理生成的结构化数据的类. �
 
 [optional] **pid**: `str`类型, 关联到的pid
 [optional] **mode**: `str`类型, 与`[ Process PID=NNNN runs in PPP mode. ]`相关
+
+### 从log生成Python原语
+
+Record在初步解析后, 其属性仍然以字符串表示, 通过继承的方式延续解析过程, 将字符串表示的成员构造为Python原语(例如int类型的pid). 
+
+示例:
+
+```
+from sparce.record import SyscallRecord
+from sparce.record.prop import Property, ArgumentConstructor
+from sparce.util.pretty import pretty_arguments
+
+class Demo(SyscallRecord, Property({'pid': int, 'timestamp': float, 'arguments': ArgumentConstructor})):
+    pass
+
+sr = Demo('12345      1.2735 rt_sigaction(signal=SIG_DEMO1, {SIG_DEMO2, [PIPE], SIG_DEMO3}, {SIG_DEMO4, [PIPE], SIG_DEMO5}, 18) = 0 <4.00674>')
+
+assert isinstance(sr.pid, int)
+assert isinstance(sr.timestamp, float)
+print(sr.pid) # 12345
+print(sr.timestamp) # 1.2735
+print(pretty_arguments(sr)) # arguments[<signal=SIG_DEMO1>,[<SIG_DEMO2>,[<PIPE>],<SIG_DEMO3>],[<SIG_DEMO4>,[<PIPE>],<SIG_DEMO5>],<18>]
+
+```
+
+Property用于将构造Python原语的过程参数化. 
+为每个需要解析的成员传入一个对应地构造器, Property生成一个用于继承到解析过程中的类. 
+
+自定义构造器输入对应参数的字符串表示, 返回对应的Python原语. 
