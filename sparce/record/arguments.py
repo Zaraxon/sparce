@@ -9,6 +9,7 @@ class Arguments:
     ATOMS['OCT'] = '(\-)?0[1-9][0-9]+'
     ATOMS['INT'] = f'({ATOMS["HEX"]})' + '|' + f'({ATOMS["ORD"]})' + '|' f'({ATOMS["OCT"]})'
     ATOMS['STRING'] = '@?"(.*?)(\\\\"(.*?))*"'
+    ATOMS['PARENTHESES'] = '\(.*?\)' # FIXME: 如果小括号内有嵌套结构, process将会出错, 但目前没有更好的办法, 先这样吧
 
 
     def in_nextlevel_struct(self, position: int, level: int) -> bool:
@@ -25,6 +26,11 @@ class Arguments:
                 return True
         return False
         
+    def in_parentheses(self, position: int) -> bool:
+        for st, ed in self.__parentheses_ranges:
+            if position >= st and position < ed:
+                return True
+        return False
 
     def process(self):
         """
@@ -35,6 +41,9 @@ class Arguments:
         line = self._line
         self.__string_ranges = [
             (m.start(), m.end()) for m in re.finditer(self.ATOMS['STRING'], line)
+        ]
+        self.__parentheses_ranges = [
+            (m.start(), m.end()) for m in re.finditer(self.ATOMS['PARENTHESES'], line)
         ]
 
         self.__structure_ranges = {}
@@ -70,7 +79,6 @@ class Arguments:
         
         if level != 0:
             return
-
         self.arguments, self.argnum_all = self.parse(line, 0, 0)
         # print(self.arguments[1][1][0])
         self._line = ''
@@ -83,12 +91,13 @@ class Arguments:
             st = 0
             args = []
             for i, c in enumerate(piece):
-                if c == ',' and not self.in_nextlevel_struct(i+off, level) and not self.in_string(i+off): # 当出现有效的","
+                if c == ',' and not self.in_nextlevel_struct(i+off, level) and not self.in_string(i+off) and not self.in_parentheses(i+off): # 当出现有效的","
                     if st < i: # resumed 情况下可能出现 ", 123, 456", 应算作2个参数而不是3个
                         args.append((st, i))
                     st = i+1
                     while st < len(piece) and '\t\n '.find(piece[st]) >= 0:
                         st += 1
+
             if st < len(piece): # 在unfinished情况下可能出现"abc, def, ", 应算作2个参数而不是3个
                 args.append((st, len(piece)))
             
@@ -117,20 +126,23 @@ class Arguments:
 
             _eq = piece.find('=', st, ed)
             k, v = None, None
-            if _eq >= st and _eq < ed and not self.in_string(_eq+st_global):
+            if _eq >= st and _eq < ed and not self.in_string(_eq+st_global) and not self.in_nextlevel_struct(_eq+st_global, level):
                 k, v = piece[st: _eq], piece[_eq+1: ed]
                 vst, ved = _eq+1, ed
             else:
                 v = piece[st: ed]
                 vst, ved = st, ed
             
-
             if self.in_nextlevel_struct(vst+st_global, level) and self.in_nextlevel_struct(ved-1+st_global, level):
-                vlist, _ = self.parse(v, vst+st_global, level+1)
-                v = vlist
+                if self.in_nextlevel_struct(st+st_global, level) and self.in_nextlevel_struct(ed+st_global, level):
+                    assert not bool(k)
+                    vlist, _ = self.parse(piece[st: ed], st+st_global, level+1)
+                    v = vlist
+                else:
+                    vlist, _ = self.parse(v, vst+st_global, level+1)
+                    v = vlist
 
             arguments.append((k, v))
-
         return arguments, argnum_all
 
     def to_string(self) -> str:

@@ -7,7 +7,10 @@ from functools import reduce
 def pretty_arguments(record: Record) -> str:
     
     def _pretty_arguments_recursive(data) -> str:
-        name, data = data[0], data[1]
+        if (isinstance(data, tuple) or isinstance(data, list)) and len(data) == 2:
+            name, data = data[0], data[1]
+        else:
+            return str(data)
         if isinstance(data, list) or isinstance(data, tuple):
             return '['+reduce(add, [_pretty_arguments_recursive(_)+',' for _ in data], '').rstrip(',')+']'
         if name is not None:

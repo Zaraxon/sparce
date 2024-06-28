@@ -177,7 +177,7 @@ class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, Syscal
         'pkey_free', 'statx', 'io_pgetevents', 'rseq', 'pidfd_send_signal', 'io_uring_setup', 'io_uring_enter', 'io_uring_register', 
         'open_tree', 'move_mount', 'fsopen', 'fsconfig', 'fsmount', 'fspick', 'pidfd_open', 'clone3', 'close_range', 'openat2', 
         'pidfd_getfd', 'faccessat2', 'process_madvise', 'epoll_pwait2', 'mount_setattr', 'landlock_create_ruleset', 'landlock_add_rule', 
-        'landlock_restrict_self', 'fstat64', 'stat64', 'set_tls', 'ugetrlimit', 'fcntl64'
+        'landlock_restrict_self', 'fstat64', 'stat64', 'set_tls', 'ugetrlimit', 'fcntl64', 'waitpid'
     ]
 
     def process(self) -> None:
