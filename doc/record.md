@@ -16,8 +16,10 @@ sparce/record 中包括了对strace line处理生成的结构化数据的类. �
 
 **arguments**(限SyscallRecord): `list`类型, 其中每个元素是一个`list`或`str`. 如果是`list`, 则其包括了strace对该参数内部元素的解析. 例子见[overview](./overview.md#quick-start)
 
-[optional] **retval**, **errorcode**, **errordesc**: `str`类型, 描述返回状态.
-例如"-1", "ENOENT", "No such file or directory". 
+[optional] **retval**: `int`类型
+
+[optional] **errorcode**, **errordesc**: `str`类型, 描述返回状态.
+例如"ENOENT", "No such file or directory". 
 
 [optional] **timestamp**, **timestamp_format**: 时间戳, 依照[manpage](https://man7.org/linux/man-pages/man1/strace.1.html)中, `wallclock`(HH:MM:SS), `wallclockms`(HH:MM:SS.ms), `epoch`(1388536422.679099) 三种格式解析.
 

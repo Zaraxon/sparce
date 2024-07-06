@@ -38,7 +38,7 @@ class SyscallSuffix:
         补充: -T syscall时间, 针对_newselect的(in ..., left ...)
 
     """
-    ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS', 'ECONNREFUSED']
+    ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS', 'ECONNREFUSED', 'EPROTOTYPE']
 
     def process(self):
 
@@ -53,20 +53,23 @@ class SyscallSuffix:
             return
         
         patterns = {
-            'RETVAL': '(0x0|0|00|(\-?[1-9][0-9]*))|(\-?0x[1-9a-fA-F][0-9a-fA-F]*)|(\-?0[1-7][0-7]*)|(\?)',
-            'SELECTINFO': '\(in\s*\[[0-9]+\](,\s*left\s*\{[0-9]+,\s*[0-9]+\})*\)',
-            'SYSCALLTIME': '<[0-9]+\.[0-9]+>',
+            'RETVAL': r'(\-?[1-9][0-9]*)|(0x[0-9a-f]+)|(0[0-7]+)|(0+)|(\?)',
+            'SYSCALLTIME': r'\<[0-9]+\.[0-9]+\>',
             'ERRORCODE': '|'.join(self.ERROR_CODES),
-            'ERRORDESC': '\((?!in).*?\)'
+            'ERRORDESC': r'\(.*?\)'
         }
-        pattern = f'^\s*(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SELECTINFO>{patterns["SELECTINFO"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
+        pattern = f'^\s*(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
         m = re.search(pattern, line)
         if m is not None:
             d = m.groupdict()
-            self.retval, self.errorcode, self.errordesc, self._selectinfo, self.syscall_time = \
-                d.get('RETVAL'), d.get('ERRORCODE'), d.get('ERRORDESC'), d.get('SELECTINFO'), d.get('SYSCALLTIME')
-            if any((self.retval, self.errorcode, self.errordesc, self._selectinfo, self.syscall_time)):
-                self._line = self._line[:_eq]
+            self.retval, self.errorcode, self.errordesc, self.syscall_time = \
+                d.get('RETVAL'), d.get('ERRORCODE'), d.get('ERRORDESC'), d.get('SYSCALLTIME')
+
+            if self.retval is not None and self.retval != '?':
+                self.retval = int(self.retval, 0)
+            
+            self._line = self._line[:_eq]
+            
 
 class CompletionStatus:
     """
@@ -80,12 +83,12 @@ class CompletionStatus:
         line = self._line
         
         patterns = {
-            'UNFNINISHED': '<unfinished ...>',
+            'UNFNINISHED': r'<unfinished \.\.\.>',
             'RESUMING': '|'.join(self.SYSCALLS)
         }
         
         self.former, self.latter = True, True
-        m = re.search(f'(<... (?P<RESUMING>{patterns["RESUMING"]}) resumed>)', line)
+        m = re.search(f'(<\.\.\. (?P<RESUMING>{patterns["RESUMING"]}) resumed>)', line)
         if m is not None:
             d = m.groupdict()
 
@@ -104,7 +107,8 @@ class CompletionStatus:
             if m is not None:
                 d = m.groupdict()
                 self.former, self.latter = True, False
-                self._line = line[:m.start()]            
+                self._line = line[:m.start()]    
+
 
 class SyscallFrame:
     """
@@ -215,7 +219,7 @@ class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, Syscal
         to_string += f' {self.syscall}'
         to_string += f'<{self.status}>'
         if suffix:
-            if not any((self.retval, self.errorcode, self.errordesc)):
+            if not any((self.retval is not None, self.errorcode, self.errordesc)):
                 to_string += f' <no-return>'
             else:
                 to_string += f' -> '

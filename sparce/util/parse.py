@@ -183,24 +183,3 @@ def parse_auto(lines: Iterable[str], _match_syscall=False) -> tuple[list[Syscall
         syscall_records = c + u + r
 
     return syscall_records, signal_records, unexpected_records, failed_lines
-        
-def parse(lines: Iterable[str], _syscall_prop: dict=None, _signal_prop:dict=None, _unexpected_prop:dict=None) \
-        -> tuple[list[SyscallRecord], list[SignalRecord], list[UnexceptedRecord], list[str]]:
-
-    syscall_records, signal_records, unexpected_records, failed_lines = parse_auto(lines, True)
-    
-    if _syscall_prop is None:
-        _syscall_prop = PROPERTIES_GENERAL
-    if _signal_prop is None:
-        _signal_prop = {}
-    if _unexpected_prop is None:
-        _unexpected_prop = {}
-
-    _SyscallType = type('Syscall', (SyscallRecord, Property(_syscall_prop)), {})
-    _SignalType = type('Signal', (SignalRecord, Property(_signal_prop)), {})
-    _UnexpectedType = type('Unexpected', (UnexceptedRecord, Property(_unexpected_prop)), {})
-    return \
-        [_SyscallType(_.origin_line) for _ in syscall_records if (_.retval is not None and _.arguments is not None)], \
-        [_SignalType(_.origin_line) for _ in signal_records], \
-        [_UnexpectedType(_.origin_line) for _ in unexpected_records], \
-        failed_lines

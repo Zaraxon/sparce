@@ -18,7 +18,7 @@ class SignalFrame:
 
         pattern = {
             'SIGNAL': '|'.join(self.SIGNALS).replace('+','\+').replace('-','\-'),
-            'ARGUMENTS': '[{].*[}]'
+            'ARGUMENTS': r'\{.*?\}'
         }
 
         m = re.search(f'^\s*\-\-\-\s*(?P<SIGNAL>{pattern["SIGNAL"]})\s*(?P<ARGUMENTS>{pattern["ARGUMENTS"]})?\s*\-\-\-\s*$', line)
@@ -27,6 +27,9 @@ class SignalFrame:
             self.signal = m.group('SIGNAL')
             if 'ARGUMENTS' in m.groupdict():
                 self._line = m.group('ARGUMENTS')[1:-1].strip()
+
+        if not hasattr(self, 'signal') or getattr(self, 'signal') is None:
+            raise SignalParsingFailException(line=line)
 
 class SignalRecord(Record, Prefix, SignalFrame, Arguments):
 
