@@ -5,32 +5,44 @@ from enum import IntFlag, Enum
 from aenum import extend_enum
 from string import digits
 
+
+class PropertyConstructionError(Exception):
+    pass
+
 class _ToProperty(type):
     pass
 
 def __process(self):
-    for name, constructor in self.__props__.items():
-        if not hasattr(self, name) or getattr(self, name) is None:
-            _str = f'not hasattr {name}' if not hasattr(self, name) else f'{name} is None'
+    for _from, _to, constructor in self.__props__:
+        if not hasattr(self, _from) or getattr(self, _from) is None:
+            _str = f'not hasattr {_from}' if not hasattr(self, _from) else f'{_from} is None'
             raise RuntimeError(_str)
-        setattr(self, name, constructor(getattr(self, name)))
+        setattr(self, _to, constructor(getattr(self, _from)))
 
-def Property(props: dict):
+def __getattr(self, name):
+    for _from, _to, constructor in self.__props__:
+        if _from == name:
+            return getattr(self, _to)
+    raise AttributeError(f'{name} not in {self.__props__}')
+
+
+def Property(props: list):
     """
         将一组**预期存在**的属性从字符串解析为Python原语
         例如 syscall_record.pid == '58' -> syscall_record.pid == 58 (int类型)
         
-        props: {属性名: 构造器}
+        props: [(构造器输入属性, 构造器输出属性, 构造器), ...]
         构造器用来从一个单个的字符串解析为Python原语(int, str等) 
         简单结构可以直接传参Python类, 嵌套结构协议需要自定义实现
         e.g.
             Property(
-                {'abc': int},
-                {'xyz': str},
-                {'cbd': tuple}
+                ('arguments', 'filename', SomeConstructorFunction},
+                ('retval', 'retval', int),
+                ('pid', 'pid', int)
             )
     """
-    return type.__new__(_ToProperty, 'ToProperty', (), {'__props__': props, 'process': __process})
+    
+    return type.__new__(_ToProperty, 'ToProperty', (), {'__props__': props, 'process': __process, '__getitem__': __getattr})
 
 
 """

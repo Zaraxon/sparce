@@ -44,7 +44,7 @@ class Prefix:
         
         ### instruction pointer
         self.instruction_pointer = None
-        m = re.search('^\s*\[(([0-9a-zA-Z])+|(\?)+)\]\s*', line)
+        m = re.search('^\s*\[\s*(([0-9a-zA-Z])+|(\?)+)\s*\]\s*', line)
         if m is not None:
             self.instruction_pointer = m.group().strip()
             line = line[m.end():]

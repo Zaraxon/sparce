@@ -1,5 +1,18 @@
 import re
-from collections.abc import Iterable
+from typing import Any
+from collections import OrderedDict
+
+"""
+    几种参数模式
+
+    1. 1, 2, 3, -1, 0x60等数字
+    2. "\334\x60abc", @"\334\x60abc"等字符串
+    3, _IOC(_IOC_READ, 0x3, 0x2, 0x1), makedev等宏
+    4. S_IFREG|0666 标志表达式
+    5. {st=1, ed=2, len=1} 表示的结构体
+    6. [1, {st=1, ed=2, len=1}] 参数列表
+    7. [128 => 28] 整数变化
+"""
 
 class Arguments:
 
