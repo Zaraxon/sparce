@@ -1,4 +1,6 @@
 from typing import Sequence
+from copy import copy, deepcopy
+
 from ...record import SyscallRecord
 from ...record import types as parsed_t
 
@@ -8,14 +10,24 @@ class _open:
     def keyword(record: SyscallRecord) -> str:
         return record.arguments[0].value.decode('utf-8')
     @staticmethod
-    def identifier(record: SyscallRecord) -> int:
+    def newfd(record: SyscallRecord) -> int:
         return record.retval
+    fd = newfd
 
 class _socket:
     NAME = 'socket'
     @staticmethod
-    def identifier(record: SyscallRecord) -> int:
+    def newfd(record: SyscallRecord) -> int:
         return record.retval
+
+class _accept:
+    NAME = 'accept'
+    @staticmethod
+    def newfd(record: SyscallRecord) -> int:
+        return record.retval
+    @staticmethod
+    def oldfd(record: SyscallRecord) -> int:
+        return record.arguments[0].value
 
 class _bind:
     NAME = 'bind'
@@ -28,35 +40,41 @@ class _getsockname:
     @staticmethod
     def keyword(record: SyscallRecord) -> str:
         return str(record.arguments[1].value)
+    
+    @staticmethod
+    def fd(record: SyscallRecord) -> int:
+        return record.arguments[0].value
 
 class _dup:
     NAME = 'dup'
     @staticmethod
-    def identifier(record: SyscallRecord) -> int:
+    def newfd(record: SyscallRecord) -> int:
         return record.retval
+    @staticmethod
+    def oldfd(record: SyscallRecord) -> int:
+        return record.arguments[0].value
     
 class _dup2:
     NAME = 'dup2'
     @staticmethod
-    def identifier(record: SyscallRecord) -> int:
+    def newfd(record: SyscallRecord) -> int:
         return record.retval
+    @staticmethod
+    def oldfd(record: SyscallRecord) -> int:
+        return record.arguments[0].value
 
 class _close:
     NAME = 'close'
     @staticmethod
-    def identifier(record: SyscallRecord) -> int:
+    def fd(record: SyscallRecord) -> int:
         return record.arguments[0].value
 
 class Activity(list):
     
     def __init__(self, *args, **kwargs):
         
-        keyword, identifier = kwargs.pop('keyword', None), kwargs.pop('identifier', None)
-        if identifier is None:
-            raise ValueError('Activity needs an identifier')
+        self.keyword = kwargs.pop('keyword', None)
         
-        self.keyword, self.identifier = keyword, identifier
-
         super().__init__(*args, **kwargs)
     
     def __str__(self) -> str:
@@ -65,28 +83,33 @@ class Activity(list):
 
 def activities(syscall_records: Sequence[SyscallRecord]) -> Sequence[Activity]:
     
-    APPLYING = [_open, _socket, _dup, _dup2]
-    KEYWORDing = [_open, _getsockname, _bind]
-    RELEASING = [_close, ]
+    APPLYING = (_open, _socket)
+    GENFROM = (_accept, _dup, _dup2)
+    KEYWORDing = (_open, _getsockname, _bind)
+    RELEASING = (_close, )
 
     def _is_applying(record: SyscallRecord) -> bool:
         return record.syscall in (_.NAME for _ in APPLYING)
     
-    def _new_activity(record: SyscallRecord) -> Activity:
+    def _new_activity(record: SyscallRecord) -> tuple[Activity, int]:
         for _ in APPLYING:
             if record.syscall == _.NAME:
-                return Activity(
-                    (record, ), 
-                    identifier = _.identifier(record)
-                )
-        raise ValueError(f'{record.syscall} not applying')
+                return Activity((record, )), _.newfd(record) 
     
-    def _get_using_identifier(record: SyscallRecord, identifiers) -> int | None:
+    def _get_using_fd(record: SyscallRecord, identifiers) -> int | None:
+        if record.arguments is None:
+            return None
         _ =  tuple(set(identifiers) & {_.value for _ in record.arguments if isinstance(_.value, int)})
         return _[0] if len(_) == 1 else None
 
     def _is_keywording(record: SyscallRecord) -> bool:
         return record.syscall in (_.NAME for _ in KEYWORDing)
+    
+    def _get_keywording_fd(record: SyscallRecord) -> int:
+        for _ in KEYWORDing:
+            if record.syscall == _.NAME:
+                return _.fd(record)
+        raise ValueError(f'{record.syscall} not keywording')
     
     def _get_keyword(record: SyscallRecord) -> str:
         for _ in KEYWORDing:
@@ -97,39 +120,94 @@ def activities(syscall_records: Sequence[SyscallRecord]) -> Sequence[Activity]:
     def _is_releasing(record: SyscallRecord) -> bool:
         return record.syscall in (_.NAME for _ in RELEASING)
     
+    def _get_releasing(record: SyscallRecord) -> int:
+        for _ in RELEASING:
+            if record.syscall == _.NAME:
+                return _.fd(record)
+        raise ValueError(f'{record.syscall} not releasing')
+    
+    def _is_genfrom(record: SyscallRecord) -> bool:
+        return record.syscall in (_.NAME for _ in GENFROM)
+    
+    def _get_genfrom(record: SyscallRecord) -> tuple[int, int]:
+        for _ in GENFROM:
+            if record.syscall == _.NAME:
+                return _.oldfd(record), _.newfd(record)
+        raise ValueError(f'{record.syscall} not genfrom')
+
+    syscall_records = copy(syscall_records) # 不要破坏掉原来的list对其元素的引用
+
     working = {}
+    backward_records = []
     done = []
+    # forward
     for record in syscall_records:    
         
         if _is_applying(record):
-            new = _new_activity(record)
-            working[new.identifier] = new
-            print('applying: ', new)
+            newact, newfd = _new_activity(record)
+            working[newfd] = newact
+        
+        elif _is_genfrom(record):
+            oldfd, newfd = _get_genfrom(record)
+            if oldfd in working.keys():
+                newact = deepcopy(working[oldfd])
+                newact.append(record)
+                working[newfd] = newact
+            else:
+                backward_records.insert(0, record)
+        
+        elif _is_releasing(record):
+            fd = _get_releasing(record)
+            if fd in working.keys():
+                working[fd].append(record)
+                done.append(working.pop(fd))
+            else:
+                backward_records.insert(0, record)
+        else:
+
+            fd = _get_using_fd(record, working.keys())
+            if fd is not None:
+                working[fd].append(record)
+            else:
+                backward_records.insert(0, record)
 
         if _is_keywording(record):
             keyword = _get_keyword(record)
-            _id = _get_using_identifier(record, working.keys())
-            if _id is not None:
-                working[_id].keyword = keyword
-            else:
-                pass
-                # print(f'warning: keyword {keyword} matched no identifier')
-        
+            fd = _get_keywording_fd(record)
+            if fd is not None:
+                working[fd].keyword = keyword
+    
+    done += list(working.values())
+
+
+    # backward
+    # 补一个反向搜索用来搜索"只有后一半"的activities, 可能有些fd在forward过程中没有对应的申请或生成过程
+    
+    backward_working = {}
+    for record in backward_records:
+
         if _is_releasing(record):
-            _id = _get_using_identifier(record, working.keys())
-            if _id is not None:
-                working[_id].append(record)
-                done.append(working.pop(_id))
-            else:
-                pass
-                # print(f'warning: releasing id {_id} matched no identifier', record)
-        
-        if not _is_applying(record) and not _is_releasing(record):
-            _id = _get_using_identifier(record, working.keys())
-            if _id is not None:
-                print(f'appending: {working[_id]}', record)
-                working[_id].append(record)
-                
+            fd, newact = _get_releasing(record), Activity((record, ))
+            backward_working[fd] = newact
+        elif _is_genfrom(record):
+            oldfd, newfd = _get_genfrom(record)
+            if newfd in backward_working.keys():
+                backward_working[newfd].append(record)
+                newact = deepcopy(backward_working[newfd])
+                backward_working[oldfd] = newact
+        else:
+            fd = _get_using_fd(record, backward_working.keys())
+            if fd is not None:
+                backward_working[fd].append(record)
+
+        if _is_keywording(record):
+            keyword = _get_keyword(record)
+            fd = _get_keywording_fd(record)
+            if fd is not None:
+                backward_working[fd].keyword = keyword
+    
+    
+    done += list(backward_working.values())
     
     return tuple(done)
             

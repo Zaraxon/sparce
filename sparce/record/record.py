@@ -22,6 +22,3 @@ class Record:
 
         self.origin_line = self._line = line
         _do_process(self, self.__class__)
-        
-        
-

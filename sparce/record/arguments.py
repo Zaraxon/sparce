@@ -1,5 +1,3 @@
-from ply.lex import LexError
-
 from .argument import parser
 
 class Arguments:

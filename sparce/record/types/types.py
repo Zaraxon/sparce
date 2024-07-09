@@ -9,12 +9,12 @@ class Structure(OrderedDict):
     def __getitem__(self, key: Any) -> Any:
         if isinstance(key, int):
             try:
-                return self[self.keys()[key]].value
+                return self[self.keys()[key]]
             except IndexError:
                 raise IndexError(f'trying indexing {key} out of {len(self.keys())} members')
         elif isinstance(key, str):
             try:
-                return super().__getitem__(key).value
+                return super().__getitem__(key)
             except KeyError:
                 raise KeyError(f'{self.keys()} not in members :[{key}]')
         else:

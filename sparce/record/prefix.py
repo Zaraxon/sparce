@@ -16,7 +16,7 @@ class Prefix:
         else:
             m = re.search('^\s*\[pid ([0-9]+)\]\s*', line)
             if m is not None:
-                self.pid = m.group(1).strip()
+                self.pid = int(m.group(1).strip())
                 line = line[m.end():]
 
         ### timestamp
@@ -37,7 +37,7 @@ class Prefix:
         ### 3 -ttt epoch time
         m = re.search('^\s*[0-9]+\.[0-9]+\s*', line)
         if m is not None and not self.timestamp:
-            self.timestamp = m.group().strip()
+            self.timestamp = float(m.group().strip())
             self.timestamp_format = 'epoch'
             line = line[m.end():]
 

@@ -6,8 +6,6 @@ from ..record import \
     SyscallRecord, SyscallParsingFailGeneralException, ResumingUnfinishedException, \
     UnexceptedRecord, UnexpectedParsingFailException
 
-from ..record.prop import Property, PROPERTIES_GENERAL
-
 class MultiLineError(Exception):
     """
         字符串中包含换行
@@ -56,15 +54,16 @@ def parse_as(line: str, _t: RecordType) -> RecordType | None:
         return _t(line)
     except parse_as.ExceptionMap[_t] as e:
         return None
-    
+
+from ply.lex import LexError
 setattr(
     parse_as, 
     'ExceptionMap', 
     {
-        SignalRecord: (SignalParsingFailException),
-        SyscallRecord: (SyscallParsingFailGeneralException, ResumingUnfinishedException),
-        SyscallRecordNoArg: (SyscallParsingFailGeneralException, ResumingUnfinishedException),
-        UnexceptedRecord: (UnexpectedParsingFailException)
+        SignalRecord: (SignalParsingFailException, LexError),
+        SyscallRecord: (SyscallParsingFailGeneralException, ResumingUnfinishedException, LexError),
+        SyscallRecordNoArg: (SyscallParsingFailGeneralException, ResumingUnfinishedException, LexError),
+        UnexceptedRecord: (UnexpectedParsingFailException, )
     }
 )
 
@@ -88,7 +87,6 @@ def match_syscalls(syscall_records: Iterable[Syscall]) -> tuple[list[Syscall], l
     resuming = []
     while syscall_records:
         sr: SyscallRecord = syscall_records.pop(0)
-        # print([str(i)+' '+str(_) for i, _ in list(reversed(list(enumerate(unfinished))))])
         if sr.complete:
             completed.append(sr)
         elif sr.unfinished:
