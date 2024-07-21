@@ -4,30 +4,8 @@ import errno
 from .record import Record
 from .prefix import Prefix
 from .arguments import Arguments
+from .errors import *
 
-
-class SyscallParsingFailException(Exception):
-
-    def __init__(self, line: str, *args: object) -> None:
-        super().__init__(*args)
-        self.line = line
-
-class SyscallParsingFailGeneralException(SyscallParsingFailException):
-    """
-        任何没有考虑到的异常
-    """
-
-    def __init__(self, line: str, *args: object) -> None:
-        super().__init__(line, *args)
-
-class ResumingUnfinishedException(SyscallParsingFailException):
-    """
-        先resume又unfinished,暂时无法解析.  
-    """
-
-    def __init__(self, syscall: str, line: str, *args: object) -> None:
-        super().__init__(line, *args)
-        self.syscall = syscall
 
 
 class SyscallSuffix:
@@ -38,37 +16,36 @@ class SyscallSuffix:
         补充: -T syscall时间, 针对_newselect的(in ..., left ...)
 
     """
-    ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS', 'ECONNREFUSED', 'EPROTOTYPE']
+    ERROR_CODES = list(errno.errorcode.values()) + ['ERESTARTSYS', 'ECONNREFUSED', 'EPROTOTYPE', 'ERESTART_RESTARTBLOCK', 'EOPNOTSUPP']
 
     def process(self):
 
         line: str = self._line
 
         self.retval, self.errorcode, self.errordesc = None, None, None
-
-        _eq = line.rfind('=')
-        if _eq >= 0:
-            line = line[_eq+1:]
-        else:
-            return
         
+        if self.latter is False:
+            return
+
         patterns = {
             'RETVAL': r'(\-?[1-9][0-9]*)|(0x[0-9a-f]+)|(0[0-7]+)|(0+)|(\?)',
             'SYSCALLTIME': r'\<[0-9]+\.[0-9]+\>',
             'ERRORCODE': '|'.join(self.ERROR_CODES),
             'ERRORDESC': r'\(.*?\)'
         }
-        pattern = f'^\s*(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
+        pattern = f'\s+=\s+(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
         m = re.search(pattern, line)
         if m is not None:
             d = m.groupdict()
             self.retval, self.errorcode, self.errordesc, self.syscall_time = \
                 d.get('RETVAL'), d.get('ERRORCODE'), d.get('ERRORDESC'), d.get('SYSCALLTIME')
 
-            if self.retval is not None and self.retval != '?':
+            if self.retval is not None and self.retval != r'?':
                 self.retval = int(self.retval, 0)
+            elif self.retval == r'?':
+                self.retval = None
             
-            self._line = self._line[:_eq]
+            self._line = self._line[:m.start(0)]
             
 
 class CompletionStatus:
@@ -88,7 +65,7 @@ class CompletionStatus:
         }
         
         self.former, self.latter = True, True
-        m = re.search(f'(<\.\.\. (?P<RESUMING>{patterns["RESUMING"]}) resumed>)', line)
+        m = re.search(f'<\.\.\. (?P<RESUMING>{patterns["RESUMING"]}) resumed>', line)
         if m is not None:
             d = m.groupdict()
 
@@ -129,18 +106,28 @@ class SyscallFrame:
                     break
             if not hasattr(self, 'syscall'):
                 raise SyscallParsingFailGeneralException(self.origin_line)
-            line = line[len(f'{self.syscall}('): len(line)-len(')')]
+            if self.complete:
+                if (line.startswith(f'{self.syscall}(') and line.endswith(')')):
+                    line = line[len(f'{self.syscall}('): len(line)-len(')')]
+            elif self.unfinished:
+                if line.startswith(f'{self.syscall}('):
+                    line = line[len(f'{self.syscall}('): ]
+            else:
+                assert False
             self._line = line   
         elif self.resuming:
-            pass # 这部分在CompletionStatus做了
             if not hasattr(self, 'syscall'):
                 raise SyscallParsingFailGeneralException(self.origin_line)
+            if line[-1] == ')':
+                line = line[:-1]
+                self._line = line
 
 class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, SyscallFrame):
 
     SYSCALLS = [
         'read', 'write', 'open', 'close', 'stat', 'fstat', 'lstat', 'poll', 'lseek', 'mmap', 'mmap2', 'mprotect', 'munmap', 
         'brk', 'rt_sigaction', 'rt_sigprocmask', 'rt_sigreturn', 'ioctl', 'pread64', 'pwrite64', 'readv', 'writev', 'access', 
+        'sigreturn', 
         'pipe', 'pipe2', 'select', 'pselect6', 'sched_yield', 'mremap', 'msync', 'mincore', 'madvise', 'shmget', 'shmat', 
         'send', 'recv', 'lstat64', 'ftruncate64', '_newselect', '_llseek', 
         'shmctl', 'dup', 'dup2', 'dup3', 'pause', 'nanosleep', 'getitimer', 'alarm', 'setitimer', 'getpid', 'sendfile', 

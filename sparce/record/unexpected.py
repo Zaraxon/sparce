@@ -14,10 +14,10 @@ class UnexceptedRecord(Record, Prefix):
     __PATTERNS__ = {
         'attached': '^\s*\[ Process ([0-9]+) attached \]\s*$',
         'detached': '^\s*\[ Process ([0-9]+) detached \]\s*$',
-        'exited': '^\s*\+\+\+ exited with ([0-9]+) \+\+\+\s*$',
-        'killed': '^\s*\+\+\+ killed by ([0-9A-Z]+) \+\+\+\s*$', 
-        'stopped': '^\s*\-\-\- stopped by ([0-9A-Z]+) \-\-\-\s*$', 
-        'superseded': '^\s*\+\+\+ superseded by execve in pid ([0-9]+) \+\+\+\s*$',
+        'exited': '^\s*\+\+\+ exited with ([0-9]+)( \(.*?\))? \+\+\+\s*$',
+        'killed': '^\s*\+\+\+ killed by ([0-9A-Z]+)( \(.*?\))? \+\+\+\s*$', 
+        'stopped': '^\s*\-\-\- stopped by ([0-9A-Z]+)( \(.*?\))? \-\-\-\s*$', 
+        'superseded': '^\s*\+\+\+ superseded by execve in pid ([0-9]+)( \(.*?\))? \+\+\+\s*$',
         'personality': '^\s*\[ Process PID=([0-9]+) runs in ([0-9]+) mode\. \]\s*$'
     }
 

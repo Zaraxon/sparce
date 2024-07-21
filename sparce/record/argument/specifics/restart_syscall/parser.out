@@ -1,0 +1,42 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> all
+Rule 1     all -> ANY
+Rule 2     all -> <empty>
+
+Terminals, with rules where they appear
+
+ANY                  : 1
+error                : 
+
+Nonterminals, with rules where they appear
+
+all                  : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . all
+    (1) all -> . ANY
+    (2) all -> .
+
+    ANY             shift and go to state 2
+    $end            reduce using rule 2 (all -> .)
+
+    all                            shift and go to state 1
+
+state 1
+
+    (0) S' -> all .
+
+
+
+state 2
+
+    (1) all -> ANY .
+
+    $end            reduce using rule 1 (all -> ANY .)
+

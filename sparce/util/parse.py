@@ -56,13 +56,14 @@ def parse_as(line: str, _t: RecordType) -> RecordType | None:
         return None
 
 from ply.lex import LexError
+from ..record.errors import ArgumentsParsingError
 setattr(
     parse_as, 
     'ExceptionMap', 
     {
         SignalRecord: (SignalParsingFailException, LexError),
-        SyscallRecord: (SyscallParsingFailGeneralException, ResumingUnfinishedException, LexError),
-        SyscallRecordNoArg: (SyscallParsingFailGeneralException, ResumingUnfinishedException, LexError),
+        SyscallRecord: (SyscallParsingFailGeneralException, ResumingUnfinishedException, LexError, ArgumentsParsingError),
+        SyscallRecordNoArg: (SyscallParsingFailGeneralException, ResumingUnfinishedException, LexError, ArgumentsParsingError),
         UnexceptedRecord: (UnexpectedParsingFailException, )
     }
 )

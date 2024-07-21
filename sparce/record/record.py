@@ -16,6 +16,8 @@ def _do_process(obj: object, cls: type=None) -> None:
         cls.process(obj)
 
 
+
+
 class Record:
 
     def __init__(self, line: str) -> None:

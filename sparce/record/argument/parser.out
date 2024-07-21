@@ -2,632 +2,1468 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Grammar
 
-Rule 0     S' -> content_sequence
-Rule 1     literal_expression -> ID
-Rule 2     literal_expression -> INTEGER
-Rule 3     literal_expression -> literal_expression OR literal_expression
-Rule 4     expression -> STRING
-Rule 5     expression -> literal_expression
-Rule 6     expression -> INTEGER ARROW INTEGER
-Rule 7     expression -> TIME
-Rule 8     expression -> FLOAT
-Rule 9     expression -> ELLIPSIS
-Rule 10    list -> LBRACKET content_sequence RBRACKET
-Rule 11    structure -> LBRACE content_sequence RBRACE
-Rule 12    macro -> ID LPARENTHESES content_sequence RPARENTHESES
-Rule 13    content_sequence -> item
-Rule 14    content_sequence -> named_item
-Rule 15    content_sequence -> content_sequence COMMA content_sequence
-Rule 16    item -> structure
-Rule 17    item -> macro
-Rule 18    item -> expression
-Rule 19    item -> list
-Rule 20    named_item -> ID EQUAL item
+Rule 0     S' -> content
+Rule 1     expr -> NOT expr
+Rule 2     expr -> expr MULT expr
+Rule 3     expr -> expr LSHIFT expr
+Rule 4     expr -> expr AND expr
+Rule 5     expr -> expr OR expr
+Rule 6     expr -> expr EQUIVALENT expr
+Rule 7     expr -> item
+Rule 8     setcontent -> terminal terminal
+Rule 9     setcontent -> terminal setcontent
+Rule 10    terminal -> STRING
+Rule 11    terminal -> INTEGER
+Rule 12    terminal -> ID
+Rule 13    terminal -> ADDROF ID
+Rule 14    terminal -> TIME
+Rule 15    terminal -> FLOAT
+Rule 16    terminal -> ELLIPSIS
+Rule 17    become -> item ARROW item
+Rule 18    list -> LBRACKET content RBRACKET
+Rule 19    list -> LBRACKET RBRACKET
+Rule 20    structure -> LBRACE content RBRACE
+Rule 21    macro -> ID LPARENTHESES content RPARENTHESES
+Rule 22    content -> content COMMA content
+Rule 23    content -> expr
+Rule 24    content -> ID EQUAL expr
+Rule 25    content -> setcontent
+Rule 26    item -> structure
+Rule 27    item -> macro
+Rule 28    item -> terminal
+Rule 29    item -> list
+Rule 30    item -> become
 
 Terminals, with rules where they appear
 
-ARROW                : 6
-COMMA                : 15
-ELLIPSIS             : 9
-EQUAL                : 20
-FLOAT                : 8
-ID                   : 1 12 20
-INTEGER              : 2 6 6
-LBRACE               : 11
-LBRACKET             : 10
-LPARENTHESES         : 12
-OR                   : 3
-RBRACE               : 11
-RBRACKET             : 10
-RPARENTHESES         : 12
-STRING               : 4
-TIME                 : 7
+ADDROF               : 13
+AND                  : 4
+ARROW                : 17
+COMMA                : 22
+ELLIPSIS             : 16
+EQUAL                : 24
+EQUIVALENT           : 6
+FLOAT                : 15
+ID                   : 12 13 21 24
+INTEGER              : 11
+LBRACE               : 20
+LBRACKET             : 18 19
+LPARENTHESES         : 21
+LSHIFT               : 3
+MULT                 : 2
+NOT                  : 1
+OR                   : 5
+RBRACE               : 20
+RBRACKET             : 18 19
+RPARENTHESES         : 21
+STRING               : 10
+TIME                 : 14
 error                : 
 
 Nonterminals, with rules where they appear
 
-content_sequence     : 10 11 12 15 15 0
-expression           : 18
-item                 : 13 20
-list                 : 19
-literal_expression   : 3 3 5
-macro                : 17
-named_item           : 14
-structure            : 16
+become               : 30
+content              : 18 20 21 22 22 0
+expr                 : 1 2 2 3 3 4 4 5 5 6 6 23 24
+item                 : 7 17 17
+list                 : 29
+macro                : 27
+setcontent           : 9 25
+structure            : 26
+terminal             : 8 8 9 28
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . content_sequence
-    (13) content_sequence -> . item
-    (14) content_sequence -> . named_item
-    (15) content_sequence -> . content_sequence COMMA content_sequence
-    (16) item -> . structure
-    (17) item -> . macro
-    (18) item -> . expression
-    (19) item -> . list
-    (20) named_item -> . ID EQUAL item
-    (11) structure -> . LBRACE content_sequence RBRACE
-    (12) macro -> . ID LPARENTHESES content_sequence RPARENTHESES
-    (4) expression -> . STRING
-    (5) expression -> . literal_expression
-    (6) expression -> . INTEGER ARROW INTEGER
-    (7) expression -> . TIME
-    (8) expression -> . FLOAT
-    (9) expression -> . ELLIPSIS
-    (10) list -> . LBRACKET content_sequence RBRACKET
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (0) S' -> . content
+    (22) content -> . content COMMA content
+    (23) content -> . expr
+    (24) content -> . ID EQUAL expr
+    (25) content -> . setcontent
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    ID              shift and go to state 8
-    LBRACE          shift and go to state 9
-    STRING          shift and go to state 10
-    INTEGER         shift and go to state 12
-    TIME            shift and go to state 13
-    FLOAT           shift and go to state 14
-    ELLIPSIS        shift and go to state 15
-    LBRACKET        shift and go to state 16
+    ID              shift and go to state 3
+    NOT             shift and go to state 5
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACE          shift and go to state 18
+    LBRACKET        shift and go to state 19
 
-    content_sequence               shift and go to state 1
-    item                           shift and go to state 2
-    named_item                     shift and go to state 3
-    structure                      shift and go to state 4
-    macro                          shift and go to state 5
-    expression                     shift and go to state 6
-    list                           shift and go to state 7
-    literal_expression             shift and go to state 11
+    content                        shift and go to state 1
+    expr                           shift and go to state 2
+    setcontent                     shift and go to state 4
+    item                           shift and go to state 6
+    terminal                       shift and go to state 7
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 1
 
-    (0) S' -> content_sequence .
-    (15) content_sequence -> content_sequence . COMMA content_sequence
+    (0) S' -> content .
+    (22) content -> content . COMMA content
 
-    COMMA           shift and go to state 17
+    COMMA           shift and go to state 20
 
 
 state 2
 
-    (13) content_sequence -> item .
+    (23) content -> expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
 
-    COMMA           reduce using rule 13 (content_sequence -> item .)
-    $end            reduce using rule 13 (content_sequence -> item .)
-    RBRACE          reduce using rule 13 (content_sequence -> item .)
-    RBRACKET        reduce using rule 13 (content_sequence -> item .)
-    RPARENTHESES    reduce using rule 13 (content_sequence -> item .)
+    COMMA           reduce using rule 23 (content -> expr .)
+    $end            reduce using rule 23 (content -> expr .)
+    RBRACE          reduce using rule 23 (content -> expr .)
+    RBRACKET        reduce using rule 23 (content -> expr .)
+    RPARENTHESES    reduce using rule 23 (content -> expr .)
+    MULT            shift and go to state 21
+    LSHIFT          shift and go to state 22
+    AND             shift and go to state 23
+    OR              shift and go to state 24
+    EQUIVALENT      shift and go to state 25
 
 
 state 3
 
-    (14) content_sequence -> named_item .
+    (24) content -> ID . EQUAL expr
+    (12) terminal -> ID .
+    (21) macro -> ID . LPARENTHESES content RPARENTHESES
 
-    COMMA           reduce using rule 14 (content_sequence -> named_item .)
-    $end            reduce using rule 14 (content_sequence -> named_item .)
-    RBRACE          reduce using rule 14 (content_sequence -> named_item .)
-    RBRACKET        reduce using rule 14 (content_sequence -> named_item .)
-    RPARENTHESES    reduce using rule 14 (content_sequence -> named_item .)
+    EQUAL           shift and go to state 26
+    STRING          reduce using rule 12 (terminal -> ID .)
+    INTEGER         reduce using rule 12 (terminal -> ID .)
+    ID              reduce using rule 12 (terminal -> ID .)
+    ADDROF          reduce using rule 12 (terminal -> ID .)
+    TIME            reduce using rule 12 (terminal -> ID .)
+    FLOAT           reduce using rule 12 (terminal -> ID .)
+    ELLIPSIS        reduce using rule 12 (terminal -> ID .)
+    ARROW           reduce using rule 12 (terminal -> ID .)
+    MULT            reduce using rule 12 (terminal -> ID .)
+    LSHIFT          reduce using rule 12 (terminal -> ID .)
+    AND             reduce using rule 12 (terminal -> ID .)
+    OR              reduce using rule 12 (terminal -> ID .)
+    EQUIVALENT      reduce using rule 12 (terminal -> ID .)
+    COMMA           reduce using rule 12 (terminal -> ID .)
+    $end            reduce using rule 12 (terminal -> ID .)
+    RBRACE          reduce using rule 12 (terminal -> ID .)
+    RBRACKET        reduce using rule 12 (terminal -> ID .)
+    RPARENTHESES    reduce using rule 12 (terminal -> ID .)
+    LPARENTHESES    shift and go to state 27
 
 
 state 4
 
-    (16) item -> structure .
+    (25) content -> setcontent .
 
-    COMMA           reduce using rule 16 (item -> structure .)
-    $end            reduce using rule 16 (item -> structure .)
-    RBRACE          reduce using rule 16 (item -> structure .)
-    RBRACKET        reduce using rule 16 (item -> structure .)
-    RPARENTHESES    reduce using rule 16 (item -> structure .)
+    COMMA           reduce using rule 25 (content -> setcontent .)
+    $end            reduce using rule 25 (content -> setcontent .)
+    RBRACE          reduce using rule 25 (content -> setcontent .)
+    RBRACKET        reduce using rule 25 (content -> setcontent .)
+    RPARENTHESES    reduce using rule 25 (content -> setcontent .)
 
 
 state 5
 
-    (17) item -> macro .
+    (1) expr -> NOT . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    COMMA           reduce using rule 17 (item -> macro .)
-    $end            reduce using rule 17 (item -> macro .)
-    RBRACE          reduce using rule 17 (item -> macro .)
-    RBRACKET        reduce using rule 17 (item -> macro .)
-    RPARENTHESES    reduce using rule 17 (item -> macro .)
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
+    expr                           shift and go to state 28
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 6
 
-    (18) item -> expression .
+    (7) expr -> item .
+    (17) become -> item . ARROW item
 
-    COMMA           reduce using rule 18 (item -> expression .)
-    $end            reduce using rule 18 (item -> expression .)
-    RBRACE          reduce using rule 18 (item -> expression .)
-    RBRACKET        reduce using rule 18 (item -> expression .)
-    RPARENTHESES    reduce using rule 18 (item -> expression .)
+    MULT            reduce using rule 7 (expr -> item .)
+    LSHIFT          reduce using rule 7 (expr -> item .)
+    AND             reduce using rule 7 (expr -> item .)
+    OR              reduce using rule 7 (expr -> item .)
+    EQUIVALENT      reduce using rule 7 (expr -> item .)
+    COMMA           reduce using rule 7 (expr -> item .)
+    $end            reduce using rule 7 (expr -> item .)
+    RBRACE          reduce using rule 7 (expr -> item .)
+    RBRACKET        reduce using rule 7 (expr -> item .)
+    RPARENTHESES    reduce using rule 7 (expr -> item .)
+    ARROW           shift and go to state 31
 
 
 state 7
 
-    (19) item -> list .
+    (8) setcontent -> terminal . terminal
+    (9) setcontent -> terminal . setcontent
+    (28) item -> terminal .
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
 
-    COMMA           reduce using rule 19 (item -> list .)
-    $end            reduce using rule 19 (item -> list .)
-    RBRACE          reduce using rule 19 (item -> list .)
-    RBRACKET        reduce using rule 19 (item -> list .)
-    RPARENTHESES    reduce using rule 19 (item -> list .)
+    ARROW           reduce using rule 28 (item -> terminal .)
+    MULT            reduce using rule 28 (item -> terminal .)
+    LSHIFT          reduce using rule 28 (item -> terminal .)
+    AND             reduce using rule 28 (item -> terminal .)
+    OR              reduce using rule 28 (item -> terminal .)
+    EQUIVALENT      reduce using rule 28 (item -> terminal .)
+    COMMA           reduce using rule 28 (item -> terminal .)
+    $end            reduce using rule 28 (item -> terminal .)
+    RBRACE          reduce using rule 28 (item -> terminal .)
+    RBRACKET        reduce using rule 28 (item -> terminal .)
+    RPARENTHESES    reduce using rule 28 (item -> terminal .)
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ID              shift and go to state 34
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
 
+    terminal                       shift and go to state 32
+    setcontent                     shift and go to state 33
 
 state 8
 
-    (20) named_item -> ID . EQUAL item
-    (12) macro -> ID . LPARENTHESES content_sequence RPARENTHESES
-    (1) literal_expression -> ID .
+    (26) item -> structure .
 
-    EQUAL           shift and go to state 18
-    LPARENTHESES    shift and go to state 19
-    OR              reduce using rule 1 (literal_expression -> ID .)
-    COMMA           reduce using rule 1 (literal_expression -> ID .)
-    $end            reduce using rule 1 (literal_expression -> ID .)
-    RBRACE          reduce using rule 1 (literal_expression -> ID .)
-    RBRACKET        reduce using rule 1 (literal_expression -> ID .)
-    RPARENTHESES    reduce using rule 1 (literal_expression -> ID .)
+    ARROW           reduce using rule 26 (item -> structure .)
+    MULT            reduce using rule 26 (item -> structure .)
+    LSHIFT          reduce using rule 26 (item -> structure .)
+    AND             reduce using rule 26 (item -> structure .)
+    OR              reduce using rule 26 (item -> structure .)
+    EQUIVALENT      reduce using rule 26 (item -> structure .)
+    COMMA           reduce using rule 26 (item -> structure .)
+    $end            reduce using rule 26 (item -> structure .)
+    RBRACE          reduce using rule 26 (item -> structure .)
+    RBRACKET        reduce using rule 26 (item -> structure .)
+    RPARENTHESES    reduce using rule 26 (item -> structure .)
 
 
 state 9
 
-    (11) structure -> LBRACE . content_sequence RBRACE
-    (13) content_sequence -> . item
-    (14) content_sequence -> . named_item
-    (15) content_sequence -> . content_sequence COMMA content_sequence
-    (16) item -> . structure
-    (17) item -> . macro
-    (18) item -> . expression
-    (19) item -> . list
-    (20) named_item -> . ID EQUAL item
-    (11) structure -> . LBRACE content_sequence RBRACE
-    (12) macro -> . ID LPARENTHESES content_sequence RPARENTHESES
-    (4) expression -> . STRING
-    (5) expression -> . literal_expression
-    (6) expression -> . INTEGER ARROW INTEGER
-    (7) expression -> . TIME
-    (8) expression -> . FLOAT
-    (9) expression -> . ELLIPSIS
-    (10) list -> . LBRACKET content_sequence RBRACKET
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (27) item -> macro .
 
-    ID              shift and go to state 8
-    LBRACE          shift and go to state 9
-    STRING          shift and go to state 10
-    INTEGER         shift and go to state 12
-    TIME            shift and go to state 13
-    FLOAT           shift and go to state 14
-    ELLIPSIS        shift and go to state 15
-    LBRACKET        shift and go to state 16
+    ARROW           reduce using rule 27 (item -> macro .)
+    MULT            reduce using rule 27 (item -> macro .)
+    LSHIFT          reduce using rule 27 (item -> macro .)
+    AND             reduce using rule 27 (item -> macro .)
+    OR              reduce using rule 27 (item -> macro .)
+    EQUIVALENT      reduce using rule 27 (item -> macro .)
+    COMMA           reduce using rule 27 (item -> macro .)
+    $end            reduce using rule 27 (item -> macro .)
+    RBRACE          reduce using rule 27 (item -> macro .)
+    RBRACKET        reduce using rule 27 (item -> macro .)
+    RPARENTHESES    reduce using rule 27 (item -> macro .)
 
-    content_sequence               shift and go to state 20
-    item                           shift and go to state 2
-    named_item                     shift and go to state 3
-    structure                      shift and go to state 4
-    macro                          shift and go to state 5
-    expression                     shift and go to state 6
-    list                           shift and go to state 7
-    literal_expression             shift and go to state 11
 
 state 10
 
-    (4) expression -> STRING .
+    (29) item -> list .
 
-    COMMA           reduce using rule 4 (expression -> STRING .)
-    $end            reduce using rule 4 (expression -> STRING .)
-    RBRACE          reduce using rule 4 (expression -> STRING .)
-    RBRACKET        reduce using rule 4 (expression -> STRING .)
-    RPARENTHESES    reduce using rule 4 (expression -> STRING .)
+    ARROW           reduce using rule 29 (item -> list .)
+    MULT            reduce using rule 29 (item -> list .)
+    LSHIFT          reduce using rule 29 (item -> list .)
+    AND             reduce using rule 29 (item -> list .)
+    OR              reduce using rule 29 (item -> list .)
+    EQUIVALENT      reduce using rule 29 (item -> list .)
+    COMMA           reduce using rule 29 (item -> list .)
+    $end            reduce using rule 29 (item -> list .)
+    RBRACE          reduce using rule 29 (item -> list .)
+    RBRACKET        reduce using rule 29 (item -> list .)
+    RPARENTHESES    reduce using rule 29 (item -> list .)
 
 
 state 11
 
-    (5) expression -> literal_expression .
-    (3) literal_expression -> literal_expression . OR literal_expression
+    (30) item -> become .
 
-    COMMA           reduce using rule 5 (expression -> literal_expression .)
-    $end            reduce using rule 5 (expression -> literal_expression .)
-    RBRACE          reduce using rule 5 (expression -> literal_expression .)
-    RBRACKET        reduce using rule 5 (expression -> literal_expression .)
-    RPARENTHESES    reduce using rule 5 (expression -> literal_expression .)
-    OR              shift and go to state 21
+    ARROW           reduce using rule 30 (item -> become .)
+    MULT            reduce using rule 30 (item -> become .)
+    LSHIFT          reduce using rule 30 (item -> become .)
+    AND             reduce using rule 30 (item -> become .)
+    OR              reduce using rule 30 (item -> become .)
+    EQUIVALENT      reduce using rule 30 (item -> become .)
+    COMMA           reduce using rule 30 (item -> become .)
+    $end            reduce using rule 30 (item -> become .)
+    RBRACE          reduce using rule 30 (item -> become .)
+    RBRACKET        reduce using rule 30 (item -> become .)
+    RPARENTHESES    reduce using rule 30 (item -> become .)
 
 
 state 12
 
-    (6) expression -> INTEGER . ARROW INTEGER
-    (2) literal_expression -> INTEGER .
+    (10) terminal -> STRING .
 
-    ARROW           shift and go to state 22
-    OR              reduce using rule 2 (literal_expression -> INTEGER .)
-    COMMA           reduce using rule 2 (literal_expression -> INTEGER .)
-    $end            reduce using rule 2 (literal_expression -> INTEGER .)
-    RBRACE          reduce using rule 2 (literal_expression -> INTEGER .)
-    RBRACKET        reduce using rule 2 (literal_expression -> INTEGER .)
-    RPARENTHESES    reduce using rule 2 (literal_expression -> INTEGER .)
+    STRING          reduce using rule 10 (terminal -> STRING .)
+    INTEGER         reduce using rule 10 (terminal -> STRING .)
+    ID              reduce using rule 10 (terminal -> STRING .)
+    ADDROF          reduce using rule 10 (terminal -> STRING .)
+    TIME            reduce using rule 10 (terminal -> STRING .)
+    FLOAT           reduce using rule 10 (terminal -> STRING .)
+    ELLIPSIS        reduce using rule 10 (terminal -> STRING .)
+    ARROW           reduce using rule 10 (terminal -> STRING .)
+    MULT            reduce using rule 10 (terminal -> STRING .)
+    LSHIFT          reduce using rule 10 (terminal -> STRING .)
+    AND             reduce using rule 10 (terminal -> STRING .)
+    OR              reduce using rule 10 (terminal -> STRING .)
+    EQUIVALENT      reduce using rule 10 (terminal -> STRING .)
+    COMMA           reduce using rule 10 (terminal -> STRING .)
+    $end            reduce using rule 10 (terminal -> STRING .)
+    RBRACE          reduce using rule 10 (terminal -> STRING .)
+    RBRACKET        reduce using rule 10 (terminal -> STRING .)
+    RPARENTHESES    reduce using rule 10 (terminal -> STRING .)
 
 
 state 13
 
-    (7) expression -> TIME .
+    (11) terminal -> INTEGER .
 
-    COMMA           reduce using rule 7 (expression -> TIME .)
-    $end            reduce using rule 7 (expression -> TIME .)
-    RBRACE          reduce using rule 7 (expression -> TIME .)
-    RBRACKET        reduce using rule 7 (expression -> TIME .)
-    RPARENTHESES    reduce using rule 7 (expression -> TIME .)
+    STRING          reduce using rule 11 (terminal -> INTEGER .)
+    INTEGER         reduce using rule 11 (terminal -> INTEGER .)
+    ID              reduce using rule 11 (terminal -> INTEGER .)
+    ADDROF          reduce using rule 11 (terminal -> INTEGER .)
+    TIME            reduce using rule 11 (terminal -> INTEGER .)
+    FLOAT           reduce using rule 11 (terminal -> INTEGER .)
+    ELLIPSIS        reduce using rule 11 (terminal -> INTEGER .)
+    ARROW           reduce using rule 11 (terminal -> INTEGER .)
+    MULT            reduce using rule 11 (terminal -> INTEGER .)
+    LSHIFT          reduce using rule 11 (terminal -> INTEGER .)
+    AND             reduce using rule 11 (terminal -> INTEGER .)
+    OR              reduce using rule 11 (terminal -> INTEGER .)
+    EQUIVALENT      reduce using rule 11 (terminal -> INTEGER .)
+    COMMA           reduce using rule 11 (terminal -> INTEGER .)
+    $end            reduce using rule 11 (terminal -> INTEGER .)
+    RBRACE          reduce using rule 11 (terminal -> INTEGER .)
+    RBRACKET        reduce using rule 11 (terminal -> INTEGER .)
+    RPARENTHESES    reduce using rule 11 (terminal -> INTEGER .)
 
 
 state 14
 
-    (8) expression -> FLOAT .
+    (13) terminal -> ADDROF . ID
 
-    COMMA           reduce using rule 8 (expression -> FLOAT .)
-    $end            reduce using rule 8 (expression -> FLOAT .)
-    RBRACE          reduce using rule 8 (expression -> FLOAT .)
-    RBRACKET        reduce using rule 8 (expression -> FLOAT .)
-    RPARENTHESES    reduce using rule 8 (expression -> FLOAT .)
+    ID              shift and go to state 35
 
 
 state 15
 
-    (9) expression -> ELLIPSIS .
+    (14) terminal -> TIME .
 
-    COMMA           reduce using rule 9 (expression -> ELLIPSIS .)
-    $end            reduce using rule 9 (expression -> ELLIPSIS .)
-    RBRACE          reduce using rule 9 (expression -> ELLIPSIS .)
-    RBRACKET        reduce using rule 9 (expression -> ELLIPSIS .)
-    RPARENTHESES    reduce using rule 9 (expression -> ELLIPSIS .)
+    STRING          reduce using rule 14 (terminal -> TIME .)
+    INTEGER         reduce using rule 14 (terminal -> TIME .)
+    ID              reduce using rule 14 (terminal -> TIME .)
+    ADDROF          reduce using rule 14 (terminal -> TIME .)
+    TIME            reduce using rule 14 (terminal -> TIME .)
+    FLOAT           reduce using rule 14 (terminal -> TIME .)
+    ELLIPSIS        reduce using rule 14 (terminal -> TIME .)
+    ARROW           reduce using rule 14 (terminal -> TIME .)
+    MULT            reduce using rule 14 (terminal -> TIME .)
+    LSHIFT          reduce using rule 14 (terminal -> TIME .)
+    AND             reduce using rule 14 (terminal -> TIME .)
+    OR              reduce using rule 14 (terminal -> TIME .)
+    EQUIVALENT      reduce using rule 14 (terminal -> TIME .)
+    COMMA           reduce using rule 14 (terminal -> TIME .)
+    $end            reduce using rule 14 (terminal -> TIME .)
+    RBRACE          reduce using rule 14 (terminal -> TIME .)
+    RBRACKET        reduce using rule 14 (terminal -> TIME .)
+    RPARENTHESES    reduce using rule 14 (terminal -> TIME .)
 
 
 state 16
 
-    (10) list -> LBRACKET . content_sequence RBRACKET
-    (13) content_sequence -> . item
-    (14) content_sequence -> . named_item
-    (15) content_sequence -> . content_sequence COMMA content_sequence
-    (16) item -> . structure
-    (17) item -> . macro
-    (18) item -> . expression
-    (19) item -> . list
-    (20) named_item -> . ID EQUAL item
-    (11) structure -> . LBRACE content_sequence RBRACE
-    (12) macro -> . ID LPARENTHESES content_sequence RPARENTHESES
-    (4) expression -> . STRING
-    (5) expression -> . literal_expression
-    (6) expression -> . INTEGER ARROW INTEGER
-    (7) expression -> . TIME
-    (8) expression -> . FLOAT
-    (9) expression -> . ELLIPSIS
-    (10) list -> . LBRACKET content_sequence RBRACKET
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (15) terminal -> FLOAT .
 
-    ID              shift and go to state 8
-    LBRACE          shift and go to state 9
-    STRING          shift and go to state 10
-    INTEGER         shift and go to state 12
-    TIME            shift and go to state 13
-    FLOAT           shift and go to state 14
-    ELLIPSIS        shift and go to state 15
-    LBRACKET        shift and go to state 16
+    STRING          reduce using rule 15 (terminal -> FLOAT .)
+    INTEGER         reduce using rule 15 (terminal -> FLOAT .)
+    ID              reduce using rule 15 (terminal -> FLOAT .)
+    ADDROF          reduce using rule 15 (terminal -> FLOAT .)
+    TIME            reduce using rule 15 (terminal -> FLOAT .)
+    FLOAT           reduce using rule 15 (terminal -> FLOAT .)
+    ELLIPSIS        reduce using rule 15 (terminal -> FLOAT .)
+    ARROW           reduce using rule 15 (terminal -> FLOAT .)
+    MULT            reduce using rule 15 (terminal -> FLOAT .)
+    LSHIFT          reduce using rule 15 (terminal -> FLOAT .)
+    AND             reduce using rule 15 (terminal -> FLOAT .)
+    OR              reduce using rule 15 (terminal -> FLOAT .)
+    EQUIVALENT      reduce using rule 15 (terminal -> FLOAT .)
+    COMMA           reduce using rule 15 (terminal -> FLOAT .)
+    $end            reduce using rule 15 (terminal -> FLOAT .)
+    RBRACE          reduce using rule 15 (terminal -> FLOAT .)
+    RBRACKET        reduce using rule 15 (terminal -> FLOAT .)
+    RPARENTHESES    reduce using rule 15 (terminal -> FLOAT .)
 
-    content_sequence               shift and go to state 23
-    item                           shift and go to state 2
-    named_item                     shift and go to state 3
-    structure                      shift and go to state 4
-    macro                          shift and go to state 5
-    expression                     shift and go to state 6
-    list                           shift and go to state 7
-    literal_expression             shift and go to state 11
 
 state 17
 
-    (15) content_sequence -> content_sequence COMMA . content_sequence
-    (13) content_sequence -> . item
-    (14) content_sequence -> . named_item
-    (15) content_sequence -> . content_sequence COMMA content_sequence
-    (16) item -> . structure
-    (17) item -> . macro
-    (18) item -> . expression
-    (19) item -> . list
-    (20) named_item -> . ID EQUAL item
-    (11) structure -> . LBRACE content_sequence RBRACE
-    (12) macro -> . ID LPARENTHESES content_sequence RPARENTHESES
-    (4) expression -> . STRING
-    (5) expression -> . literal_expression
-    (6) expression -> . INTEGER ARROW INTEGER
-    (7) expression -> . TIME
-    (8) expression -> . FLOAT
-    (9) expression -> . ELLIPSIS
-    (10) list -> . LBRACKET content_sequence RBRACKET
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (16) terminal -> ELLIPSIS .
 
-    ID              shift and go to state 8
-    LBRACE          shift and go to state 9
-    STRING          shift and go to state 10
-    INTEGER         shift and go to state 12
-    TIME            shift and go to state 13
-    FLOAT           shift and go to state 14
-    ELLIPSIS        shift and go to state 15
-    LBRACKET        shift and go to state 16
+    STRING          reduce using rule 16 (terminal -> ELLIPSIS .)
+    INTEGER         reduce using rule 16 (terminal -> ELLIPSIS .)
+    ID              reduce using rule 16 (terminal -> ELLIPSIS .)
+    ADDROF          reduce using rule 16 (terminal -> ELLIPSIS .)
+    TIME            reduce using rule 16 (terminal -> ELLIPSIS .)
+    FLOAT           reduce using rule 16 (terminal -> ELLIPSIS .)
+    ELLIPSIS        reduce using rule 16 (terminal -> ELLIPSIS .)
+    ARROW           reduce using rule 16 (terminal -> ELLIPSIS .)
+    MULT            reduce using rule 16 (terminal -> ELLIPSIS .)
+    LSHIFT          reduce using rule 16 (terminal -> ELLIPSIS .)
+    AND             reduce using rule 16 (terminal -> ELLIPSIS .)
+    OR              reduce using rule 16 (terminal -> ELLIPSIS .)
+    EQUIVALENT      reduce using rule 16 (terminal -> ELLIPSIS .)
+    COMMA           reduce using rule 16 (terminal -> ELLIPSIS .)
+    $end            reduce using rule 16 (terminal -> ELLIPSIS .)
+    RBRACE          reduce using rule 16 (terminal -> ELLIPSIS .)
+    RBRACKET        reduce using rule 16 (terminal -> ELLIPSIS .)
+    RPARENTHESES    reduce using rule 16 (terminal -> ELLIPSIS .)
 
-    content_sequence               shift and go to state 24
-    item                           shift and go to state 2
-    named_item                     shift and go to state 3
-    structure                      shift and go to state 4
-    macro                          shift and go to state 5
-    expression                     shift and go to state 6
-    list                           shift and go to state 7
-    literal_expression             shift and go to state 11
 
 state 18
 
-    (20) named_item -> ID EQUAL . item
-    (16) item -> . structure
-    (17) item -> . macro
-    (18) item -> . expression
-    (19) item -> . list
-    (11) structure -> . LBRACE content_sequence RBRACE
-    (12) macro -> . ID LPARENTHESES content_sequence RPARENTHESES
-    (4) expression -> . STRING
-    (5) expression -> . literal_expression
-    (6) expression -> . INTEGER ARROW INTEGER
-    (7) expression -> . TIME
-    (8) expression -> . FLOAT
-    (9) expression -> . ELLIPSIS
-    (10) list -> . LBRACKET content_sequence RBRACKET
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (20) structure -> LBRACE . content RBRACE
+    (22) content -> . content COMMA content
+    (23) content -> . expr
+    (24) content -> . ID EQUAL expr
+    (25) content -> . setcontent
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    LBRACE          shift and go to state 9
-    ID              shift and go to state 25
-    STRING          shift and go to state 10
-    INTEGER         shift and go to state 12
-    TIME            shift and go to state 13
-    FLOAT           shift and go to state 14
-    ELLIPSIS        shift and go to state 15
-    LBRACKET        shift and go to state 16
+    ID              shift and go to state 3
+    NOT             shift and go to state 5
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACE          shift and go to state 18
+    LBRACKET        shift and go to state 19
 
-    item                           shift and go to state 26
-    structure                      shift and go to state 4
-    macro                          shift and go to state 5
-    expression                     shift and go to state 6
-    list                           shift and go to state 7
-    literal_expression             shift and go to state 11
+    content                        shift and go to state 36
+    expr                           shift and go to state 2
+    setcontent                     shift and go to state 4
+    item                           shift and go to state 6
+    terminal                       shift and go to state 7
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 19
 
-    (12) macro -> ID LPARENTHESES . content_sequence RPARENTHESES
-    (13) content_sequence -> . item
-    (14) content_sequence -> . named_item
-    (15) content_sequence -> . content_sequence COMMA content_sequence
-    (16) item -> . structure
-    (17) item -> . macro
-    (18) item -> . expression
-    (19) item -> . list
-    (20) named_item -> . ID EQUAL item
-    (11) structure -> . LBRACE content_sequence RBRACE
-    (12) macro -> . ID LPARENTHESES content_sequence RPARENTHESES
-    (4) expression -> . STRING
-    (5) expression -> . literal_expression
-    (6) expression -> . INTEGER ARROW INTEGER
-    (7) expression -> . TIME
-    (8) expression -> . FLOAT
-    (9) expression -> . ELLIPSIS
-    (10) list -> . LBRACKET content_sequence RBRACKET
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (18) list -> LBRACKET . content RBRACKET
+    (19) list -> LBRACKET . RBRACKET
+    (22) content -> . content COMMA content
+    (23) content -> . expr
+    (24) content -> . ID EQUAL expr
+    (25) content -> . setcontent
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    ID              shift and go to state 8
-    LBRACE          shift and go to state 9
-    STRING          shift and go to state 10
-    INTEGER         shift and go to state 12
-    TIME            shift and go to state 13
-    FLOAT           shift and go to state 14
-    ELLIPSIS        shift and go to state 15
-    LBRACKET        shift and go to state 16
+    RBRACKET        shift and go to state 38
+    ID              shift and go to state 3
+    NOT             shift and go to state 5
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACE          shift and go to state 18
+    LBRACKET        shift and go to state 19
 
-    content_sequence               shift and go to state 27
-    item                           shift and go to state 2
-    named_item                     shift and go to state 3
-    structure                      shift and go to state 4
-    macro                          shift and go to state 5
-    expression                     shift and go to state 6
-    list                           shift and go to state 7
-    literal_expression             shift and go to state 11
+    content                        shift and go to state 37
+    expr                           shift and go to state 2
+    setcontent                     shift and go to state 4
+    item                           shift and go to state 6
+    terminal                       shift and go to state 7
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 20
 
-    (11) structure -> LBRACE content_sequence . RBRACE
-    (15) content_sequence -> content_sequence . COMMA content_sequence
+    (22) content -> content COMMA . content
+    (22) content -> . content COMMA content
+    (23) content -> . expr
+    (24) content -> . ID EQUAL expr
+    (25) content -> . setcontent
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    RBRACE          shift and go to state 28
-    COMMA           shift and go to state 17
+    ID              shift and go to state 3
+    NOT             shift and go to state 5
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACE          shift and go to state 18
+    LBRACKET        shift and go to state 19
 
+    content                        shift and go to state 39
+    expr                           shift and go to state 2
+    setcontent                     shift and go to state 4
+    item                           shift and go to state 6
+    terminal                       shift and go to state 7
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 21
 
-    (3) literal_expression -> literal_expression OR . literal_expression
-    (1) literal_expression -> . ID
-    (2) literal_expression -> . INTEGER
-    (3) literal_expression -> . literal_expression OR literal_expression
+    (2) expr -> expr MULT . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
     ID              shift and go to state 30
-    INTEGER         shift and go to state 31
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
-    literal_expression             shift and go to state 29
+    expr                           shift and go to state 40
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 22
 
-    (6) expression -> INTEGER ARROW . INTEGER
+    (3) expr -> expr LSHIFT . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    INTEGER         shift and go to state 32
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
+    expr                           shift and go to state 41
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 23
 
-    (10) list -> LBRACKET content_sequence . RBRACKET
-    (15) content_sequence -> content_sequence . COMMA content_sequence
+    (4) expr -> expr AND . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    RBRACKET        shift and go to state 33
-    COMMA           shift and go to state 17
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
+    expr                           shift and go to state 42
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 24
 
-    (15) content_sequence -> content_sequence COMMA content_sequence .
-    (15) content_sequence -> content_sequence . COMMA content_sequence
+    (5) expr -> expr OR . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    COMMA           reduce using rule 15 (content_sequence -> content_sequence COMMA content_sequence .)
-    $end            reduce using rule 15 (content_sequence -> content_sequence COMMA content_sequence .)
-    RBRACE          reduce using rule 15 (content_sequence -> content_sequence COMMA content_sequence .)
-    RBRACKET        reduce using rule 15 (content_sequence -> content_sequence COMMA content_sequence .)
-    RPARENTHESES    reduce using rule 15 (content_sequence -> content_sequence COMMA content_sequence .)
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
-  ! COMMA           [ shift and go to state 17 ]
-
+    expr                           shift and go to state 43
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 25
 
-    (12) macro -> ID . LPARENTHESES content_sequence RPARENTHESES
-    (1) literal_expression -> ID .
+    (6) expr -> expr EQUIVALENT . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    LPARENTHESES    shift and go to state 19
-    OR              reduce using rule 1 (literal_expression -> ID .)
-    COMMA           reduce using rule 1 (literal_expression -> ID .)
-    $end            reduce using rule 1 (literal_expression -> ID .)
-    RBRACE          reduce using rule 1 (literal_expression -> ID .)
-    RBRACKET        reduce using rule 1 (literal_expression -> ID .)
-    RPARENTHESES    reduce using rule 1 (literal_expression -> ID .)
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
+    expr                           shift and go to state 44
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 26
 
-    (20) named_item -> ID EQUAL item .
+    (24) content -> ID EQUAL . expr
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    COMMA           reduce using rule 20 (named_item -> ID EQUAL item .)
-    $end            reduce using rule 20 (named_item -> ID EQUAL item .)
-    RBRACE          reduce using rule 20 (named_item -> ID EQUAL item .)
-    RBRACKET        reduce using rule 20 (named_item -> ID EQUAL item .)
-    RPARENTHESES    reduce using rule 20 (named_item -> ID EQUAL item .)
+    NOT             shift and go to state 5
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
+    expr                           shift and go to state 45
+    item                           shift and go to state 6
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 27
 
-    (12) macro -> ID LPARENTHESES content_sequence . RPARENTHESES
-    (15) content_sequence -> content_sequence . COMMA content_sequence
+    (21) macro -> ID LPARENTHESES . content RPARENTHESES
+    (22) content -> . content COMMA content
+    (23) content -> . expr
+    (24) content -> . ID EQUAL expr
+    (25) content -> . setcontent
+    (1) expr -> . NOT expr
+    (2) expr -> . expr MULT expr
+    (3) expr -> . expr LSHIFT expr
+    (4) expr -> . expr AND expr
+    (5) expr -> . expr OR expr
+    (6) expr -> . expr EQUIVALENT expr
+    (7) expr -> . item
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    RPARENTHESES    shift and go to state 34
-    COMMA           shift and go to state 17
+    ID              shift and go to state 3
+    NOT             shift and go to state 5
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACE          shift and go to state 18
+    LBRACKET        shift and go to state 19
 
+    content                        shift and go to state 46
+    expr                           shift and go to state 2
+    setcontent                     shift and go to state 4
+    item                           shift and go to state 6
+    terminal                       shift and go to state 7
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 28
 
-    (11) structure -> LBRACE content_sequence RBRACE .
+    (1) expr -> NOT expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
 
-    COMMA           reduce using rule 11 (structure -> LBRACE content_sequence RBRACE .)
-    $end            reduce using rule 11 (structure -> LBRACE content_sequence RBRACE .)
-    RBRACE          reduce using rule 11 (structure -> LBRACE content_sequence RBRACE .)
-    RBRACKET        reduce using rule 11 (structure -> LBRACE content_sequence RBRACE .)
-    RPARENTHESES    reduce using rule 11 (structure -> LBRACE content_sequence RBRACE .)
+    MULT            reduce using rule 1 (expr -> NOT expr .)
+    LSHIFT          reduce using rule 1 (expr -> NOT expr .)
+    AND             reduce using rule 1 (expr -> NOT expr .)
+    OR              reduce using rule 1 (expr -> NOT expr .)
+    EQUIVALENT      reduce using rule 1 (expr -> NOT expr .)
+    COMMA           reduce using rule 1 (expr -> NOT expr .)
+    $end            reduce using rule 1 (expr -> NOT expr .)
+    RBRACE          reduce using rule 1 (expr -> NOT expr .)
+    RBRACKET        reduce using rule 1 (expr -> NOT expr .)
+    RPARENTHESES    reduce using rule 1 (expr -> NOT expr .)
+
+  ! MULT            [ shift and go to state 21 ]
+  ! LSHIFT          [ shift and go to state 22 ]
+  ! AND             [ shift and go to state 23 ]
+  ! OR              [ shift and go to state 24 ]
+  ! EQUIVALENT      [ shift and go to state 25 ]
 
 
 state 29
 
-    (3) literal_expression -> literal_expression OR literal_expression .
-    (3) literal_expression -> literal_expression . OR literal_expression
+    (28) item -> terminal .
 
-    OR              reduce using rule 3 (literal_expression -> literal_expression OR literal_expression .)
-    COMMA           reduce using rule 3 (literal_expression -> literal_expression OR literal_expression .)
-    $end            reduce using rule 3 (literal_expression -> literal_expression OR literal_expression .)
-    RBRACE          reduce using rule 3 (literal_expression -> literal_expression OR literal_expression .)
-    RBRACKET        reduce using rule 3 (literal_expression -> literal_expression OR literal_expression .)
-    RPARENTHESES    reduce using rule 3 (literal_expression -> literal_expression OR literal_expression .)
-
-  ! OR              [ shift and go to state 21 ]
+    ARROW           reduce using rule 28 (item -> terminal .)
+    MULT            reduce using rule 28 (item -> terminal .)
+    LSHIFT          reduce using rule 28 (item -> terminal .)
+    AND             reduce using rule 28 (item -> terminal .)
+    OR              reduce using rule 28 (item -> terminal .)
+    EQUIVALENT      reduce using rule 28 (item -> terminal .)
+    COMMA           reduce using rule 28 (item -> terminal .)
+    $end            reduce using rule 28 (item -> terminal .)
+    RBRACE          reduce using rule 28 (item -> terminal .)
+    RBRACKET        reduce using rule 28 (item -> terminal .)
+    RPARENTHESES    reduce using rule 28 (item -> terminal .)
 
 
 state 30
 
-    (1) literal_expression -> ID .
+    (21) macro -> ID . LPARENTHESES content RPARENTHESES
+    (12) terminal -> ID .
 
-    OR              reduce using rule 1 (literal_expression -> ID .)
-    COMMA           reduce using rule 1 (literal_expression -> ID .)
-    $end            reduce using rule 1 (literal_expression -> ID .)
-    RBRACE          reduce using rule 1 (literal_expression -> ID .)
-    RBRACKET        reduce using rule 1 (literal_expression -> ID .)
-    RPARENTHESES    reduce using rule 1 (literal_expression -> ID .)
+    LPARENTHESES    shift and go to state 27
+    ARROW           reduce using rule 12 (terminal -> ID .)
+    MULT            reduce using rule 12 (terminal -> ID .)
+    LSHIFT          reduce using rule 12 (terminal -> ID .)
+    AND             reduce using rule 12 (terminal -> ID .)
+    OR              reduce using rule 12 (terminal -> ID .)
+    EQUIVALENT      reduce using rule 12 (terminal -> ID .)
+    COMMA           reduce using rule 12 (terminal -> ID .)
+    $end            reduce using rule 12 (terminal -> ID .)
+    RBRACE          reduce using rule 12 (terminal -> ID .)
+    RBRACKET        reduce using rule 12 (terminal -> ID .)
+    RPARENTHESES    reduce using rule 12 (terminal -> ID .)
 
 
 state 31
 
-    (2) literal_expression -> INTEGER .
+    (17) become -> item ARROW . item
+    (26) item -> . structure
+    (27) item -> . macro
+    (28) item -> . terminal
+    (29) item -> . list
+    (30) item -> . become
+    (20) structure -> . LBRACE content RBRACE
+    (21) macro -> . ID LPARENTHESES content RPARENTHESES
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (18) list -> . LBRACKET content RBRACKET
+    (19) list -> . LBRACKET RBRACKET
+    (17) become -> . item ARROW item
 
-    OR              reduce using rule 2 (literal_expression -> INTEGER .)
-    COMMA           reduce using rule 2 (literal_expression -> INTEGER .)
-    $end            reduce using rule 2 (literal_expression -> INTEGER .)
-    RBRACE          reduce using rule 2 (literal_expression -> INTEGER .)
-    RBRACKET        reduce using rule 2 (literal_expression -> INTEGER .)
-    RPARENTHESES    reduce using rule 2 (literal_expression -> INTEGER .)
+    LBRACE          shift and go to state 18
+    ID              shift and go to state 30
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
+    LBRACKET        shift and go to state 19
 
+    item                           shift and go to state 47
+    structure                      shift and go to state 8
+    macro                          shift and go to state 9
+    terminal                       shift and go to state 29
+    list                           shift and go to state 10
+    become                         shift and go to state 11
 
 state 32
 
-    (6) expression -> INTEGER ARROW INTEGER .
+    (8) setcontent -> terminal terminal .
+    (8) setcontent -> terminal . terminal
+    (9) setcontent -> terminal . setcontent
+    (10) terminal -> . STRING
+    (11) terminal -> . INTEGER
+    (12) terminal -> . ID
+    (13) terminal -> . ADDROF ID
+    (14) terminal -> . TIME
+    (15) terminal -> . FLOAT
+    (16) terminal -> . ELLIPSIS
+    (8) setcontent -> . terminal terminal
+    (9) setcontent -> . terminal setcontent
 
-    COMMA           reduce using rule 6 (expression -> INTEGER ARROW INTEGER .)
-    $end            reduce using rule 6 (expression -> INTEGER ARROW INTEGER .)
-    RBRACE          reduce using rule 6 (expression -> INTEGER ARROW INTEGER .)
-    RBRACKET        reduce using rule 6 (expression -> INTEGER ARROW INTEGER .)
-    RPARENTHESES    reduce using rule 6 (expression -> INTEGER ARROW INTEGER .)
+    COMMA           reduce using rule 8 (setcontent -> terminal terminal .)
+    $end            reduce using rule 8 (setcontent -> terminal terminal .)
+    RBRACE          reduce using rule 8 (setcontent -> terminal terminal .)
+    RBRACKET        reduce using rule 8 (setcontent -> terminal terminal .)
+    RPARENTHESES    reduce using rule 8 (setcontent -> terminal terminal .)
+    STRING          shift and go to state 12
+    INTEGER         shift and go to state 13
+    ID              shift and go to state 34
+    ADDROF          shift and go to state 14
+    TIME            shift and go to state 15
+    FLOAT           shift and go to state 16
+    ELLIPSIS        shift and go to state 17
 
+    terminal                       shift and go to state 32
+    setcontent                     shift and go to state 33
 
 state 33
 
-    (10) list -> LBRACKET content_sequence RBRACKET .
+    (9) setcontent -> terminal setcontent .
 
-    COMMA           reduce using rule 10 (list -> LBRACKET content_sequence RBRACKET .)
-    $end            reduce using rule 10 (list -> LBRACKET content_sequence RBRACKET .)
-    RBRACE          reduce using rule 10 (list -> LBRACKET content_sequence RBRACKET .)
-    RBRACKET        reduce using rule 10 (list -> LBRACKET content_sequence RBRACKET .)
-    RPARENTHESES    reduce using rule 10 (list -> LBRACKET content_sequence RBRACKET .)
+    COMMA           reduce using rule 9 (setcontent -> terminal setcontent .)
+    $end            reduce using rule 9 (setcontent -> terminal setcontent .)
+    RBRACE          reduce using rule 9 (setcontent -> terminal setcontent .)
+    RBRACKET        reduce using rule 9 (setcontent -> terminal setcontent .)
+    RPARENTHESES    reduce using rule 9 (setcontent -> terminal setcontent .)
 
 
 state 34
 
-    (12) macro -> ID LPARENTHESES content_sequence RPARENTHESES .
+    (12) terminal -> ID .
 
-    COMMA           reduce using rule 12 (macro -> ID LPARENTHESES content_sequence RPARENTHESES .)
-    $end            reduce using rule 12 (macro -> ID LPARENTHESES content_sequence RPARENTHESES .)
-    RBRACE          reduce using rule 12 (macro -> ID LPARENTHESES content_sequence RPARENTHESES .)
-    RBRACKET        reduce using rule 12 (macro -> ID LPARENTHESES content_sequence RPARENTHESES .)
-    RPARENTHESES    reduce using rule 12 (macro -> ID LPARENTHESES content_sequence RPARENTHESES .)
+    STRING          reduce using rule 12 (terminal -> ID .)
+    INTEGER         reduce using rule 12 (terminal -> ID .)
+    ID              reduce using rule 12 (terminal -> ID .)
+    ADDROF          reduce using rule 12 (terminal -> ID .)
+    TIME            reduce using rule 12 (terminal -> ID .)
+    FLOAT           reduce using rule 12 (terminal -> ID .)
+    ELLIPSIS        reduce using rule 12 (terminal -> ID .)
+    COMMA           reduce using rule 12 (terminal -> ID .)
+    $end            reduce using rule 12 (terminal -> ID .)
+    RBRACE          reduce using rule 12 (terminal -> ID .)
+    RBRACKET        reduce using rule 12 (terminal -> ID .)
+    RPARENTHESES    reduce using rule 12 (terminal -> ID .)
+
+
+state 35
+
+    (13) terminal -> ADDROF ID .
+
+    STRING          reduce using rule 13 (terminal -> ADDROF ID .)
+    INTEGER         reduce using rule 13 (terminal -> ADDROF ID .)
+    ID              reduce using rule 13 (terminal -> ADDROF ID .)
+    ADDROF          reduce using rule 13 (terminal -> ADDROF ID .)
+    TIME            reduce using rule 13 (terminal -> ADDROF ID .)
+    FLOAT           reduce using rule 13 (terminal -> ADDROF ID .)
+    ELLIPSIS        reduce using rule 13 (terminal -> ADDROF ID .)
+    ARROW           reduce using rule 13 (terminal -> ADDROF ID .)
+    MULT            reduce using rule 13 (terminal -> ADDROF ID .)
+    LSHIFT          reduce using rule 13 (terminal -> ADDROF ID .)
+    AND             reduce using rule 13 (terminal -> ADDROF ID .)
+    OR              reduce using rule 13 (terminal -> ADDROF ID .)
+    EQUIVALENT      reduce using rule 13 (terminal -> ADDROF ID .)
+    COMMA           reduce using rule 13 (terminal -> ADDROF ID .)
+    $end            reduce using rule 13 (terminal -> ADDROF ID .)
+    RBRACE          reduce using rule 13 (terminal -> ADDROF ID .)
+    RBRACKET        reduce using rule 13 (terminal -> ADDROF ID .)
+    RPARENTHESES    reduce using rule 13 (terminal -> ADDROF ID .)
+
+
+state 36
+
+    (20) structure -> LBRACE content . RBRACE
+    (22) content -> content . COMMA content
+
+    RBRACE          shift and go to state 48
+    COMMA           shift and go to state 20
+
+
+state 37
+
+    (18) list -> LBRACKET content . RBRACKET
+    (22) content -> content . COMMA content
+
+    RBRACKET        shift and go to state 49
+    COMMA           shift and go to state 20
+
+
+state 38
+
+    (19) list -> LBRACKET RBRACKET .
+
+    ARROW           reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    MULT            reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    LSHIFT          reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    AND             reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    OR              reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    EQUIVALENT      reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    COMMA           reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    $end            reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    RBRACE          reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    RBRACKET        reduce using rule 19 (list -> LBRACKET RBRACKET .)
+    RPARENTHESES    reduce using rule 19 (list -> LBRACKET RBRACKET .)
+
+
+state 39
+
+    (22) content -> content COMMA content .
+    (22) content -> content . COMMA content
+
+    COMMA           reduce using rule 22 (content -> content COMMA content .)
+    $end            reduce using rule 22 (content -> content COMMA content .)
+    RBRACE          reduce using rule 22 (content -> content COMMA content .)
+    RBRACKET        reduce using rule 22 (content -> content COMMA content .)
+    RPARENTHESES    reduce using rule 22 (content -> content COMMA content .)
+
+  ! COMMA           [ shift and go to state 20 ]
+
+
+state 40
+
+    (2) expr -> expr MULT expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
+
+    MULT            reduce using rule 2 (expr -> expr MULT expr .)
+    LSHIFT          reduce using rule 2 (expr -> expr MULT expr .)
+    AND             reduce using rule 2 (expr -> expr MULT expr .)
+    OR              reduce using rule 2 (expr -> expr MULT expr .)
+    EQUIVALENT      reduce using rule 2 (expr -> expr MULT expr .)
+    COMMA           reduce using rule 2 (expr -> expr MULT expr .)
+    $end            reduce using rule 2 (expr -> expr MULT expr .)
+    RBRACE          reduce using rule 2 (expr -> expr MULT expr .)
+    RBRACKET        reduce using rule 2 (expr -> expr MULT expr .)
+    RPARENTHESES    reduce using rule 2 (expr -> expr MULT expr .)
+
+  ! MULT            [ shift and go to state 21 ]
+  ! LSHIFT          [ shift and go to state 22 ]
+  ! AND             [ shift and go to state 23 ]
+  ! OR              [ shift and go to state 24 ]
+  ! EQUIVALENT      [ shift and go to state 25 ]
+
+
+state 41
+
+    (3) expr -> expr LSHIFT expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
+
+    LSHIFT          reduce using rule 3 (expr -> expr LSHIFT expr .)
+    AND             reduce using rule 3 (expr -> expr LSHIFT expr .)
+    OR              reduce using rule 3 (expr -> expr LSHIFT expr .)
+    EQUIVALENT      reduce using rule 3 (expr -> expr LSHIFT expr .)
+    COMMA           reduce using rule 3 (expr -> expr LSHIFT expr .)
+    $end            reduce using rule 3 (expr -> expr LSHIFT expr .)
+    RBRACE          reduce using rule 3 (expr -> expr LSHIFT expr .)
+    RBRACKET        reduce using rule 3 (expr -> expr LSHIFT expr .)
+    RPARENTHESES    reduce using rule 3 (expr -> expr LSHIFT expr .)
+    MULT            shift and go to state 21
+
+  ! MULT            [ reduce using rule 3 (expr -> expr LSHIFT expr .) ]
+  ! LSHIFT          [ shift and go to state 22 ]
+  ! AND             [ shift and go to state 23 ]
+  ! OR              [ shift and go to state 24 ]
+  ! EQUIVALENT      [ shift and go to state 25 ]
+
+
+state 42
+
+    (4) expr -> expr AND expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
+
+    AND             reduce using rule 4 (expr -> expr AND expr .)
+    COMMA           reduce using rule 4 (expr -> expr AND expr .)
+    $end            reduce using rule 4 (expr -> expr AND expr .)
+    RBRACE          reduce using rule 4 (expr -> expr AND expr .)
+    RBRACKET        reduce using rule 4 (expr -> expr AND expr .)
+    RPARENTHESES    reduce using rule 4 (expr -> expr AND expr .)
+    MULT            shift and go to state 21
+    LSHIFT          shift and go to state 22
+    OR              shift and go to state 24
+    EQUIVALENT      shift and go to state 25
+
+  ! MULT            [ reduce using rule 4 (expr -> expr AND expr .) ]
+  ! LSHIFT          [ reduce using rule 4 (expr -> expr AND expr .) ]
+  ! OR              [ reduce using rule 4 (expr -> expr AND expr .) ]
+  ! EQUIVALENT      [ reduce using rule 4 (expr -> expr AND expr .) ]
+  ! AND             [ shift and go to state 23 ]
+
+
+state 43
+
+    (5) expr -> expr OR expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
+
+    AND             reduce using rule 5 (expr -> expr OR expr .)
+    OR              reduce using rule 5 (expr -> expr OR expr .)
+    EQUIVALENT      reduce using rule 5 (expr -> expr OR expr .)
+    COMMA           reduce using rule 5 (expr -> expr OR expr .)
+    $end            reduce using rule 5 (expr -> expr OR expr .)
+    RBRACE          reduce using rule 5 (expr -> expr OR expr .)
+    RBRACKET        reduce using rule 5 (expr -> expr OR expr .)
+    RPARENTHESES    reduce using rule 5 (expr -> expr OR expr .)
+    MULT            shift and go to state 21
+    LSHIFT          shift and go to state 22
+
+  ! MULT            [ reduce using rule 5 (expr -> expr OR expr .) ]
+  ! LSHIFT          [ reduce using rule 5 (expr -> expr OR expr .) ]
+  ! AND             [ shift and go to state 23 ]
+  ! OR              [ shift and go to state 24 ]
+  ! EQUIVALENT      [ shift and go to state 25 ]
+
+
+state 44
+
+    (6) expr -> expr EQUIVALENT expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
+
+    AND             reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    EQUIVALENT      reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    COMMA           reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    $end            reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    RBRACE          reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    RBRACKET        reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    RPARENTHESES    reduce using rule 6 (expr -> expr EQUIVALENT expr .)
+    MULT            shift and go to state 21
+    LSHIFT          shift and go to state 22
+    OR              shift and go to state 24
+
+  ! MULT            [ reduce using rule 6 (expr -> expr EQUIVALENT expr .) ]
+  ! LSHIFT          [ reduce using rule 6 (expr -> expr EQUIVALENT expr .) ]
+  ! OR              [ reduce using rule 6 (expr -> expr EQUIVALENT expr .) ]
+  ! AND             [ shift and go to state 23 ]
+  ! EQUIVALENT      [ shift and go to state 25 ]
+
+
+state 45
+
+    (24) content -> ID EQUAL expr .
+    (2) expr -> expr . MULT expr
+    (3) expr -> expr . LSHIFT expr
+    (4) expr -> expr . AND expr
+    (5) expr -> expr . OR expr
+    (6) expr -> expr . EQUIVALENT expr
+
+    COMMA           reduce using rule 24 (content -> ID EQUAL expr .)
+    $end            reduce using rule 24 (content -> ID EQUAL expr .)
+    RBRACE          reduce using rule 24 (content -> ID EQUAL expr .)
+    RBRACKET        reduce using rule 24 (content -> ID EQUAL expr .)
+    RPARENTHESES    reduce using rule 24 (content -> ID EQUAL expr .)
+    MULT            shift and go to state 21
+    LSHIFT          shift and go to state 22
+    AND             shift and go to state 23
+    OR              shift and go to state 24
+    EQUIVALENT      shift and go to state 25
+
+
+state 46
+
+    (21) macro -> ID LPARENTHESES content . RPARENTHESES
+    (22) content -> content . COMMA content
+
+    RPARENTHESES    shift and go to state 50
+    COMMA           shift and go to state 20
+
+
+state 47
+
+    (17) become -> item ARROW item .
+    (17) become -> item . ARROW item
+
+    ARROW           reduce using rule 17 (become -> item ARROW item .)
+    MULT            reduce using rule 17 (become -> item ARROW item .)
+    LSHIFT          reduce using rule 17 (become -> item ARROW item .)
+    AND             reduce using rule 17 (become -> item ARROW item .)
+    OR              reduce using rule 17 (become -> item ARROW item .)
+    EQUIVALENT      reduce using rule 17 (become -> item ARROW item .)
+    COMMA           reduce using rule 17 (become -> item ARROW item .)
+    $end            reduce using rule 17 (become -> item ARROW item .)
+    RBRACE          reduce using rule 17 (become -> item ARROW item .)
+    RBRACKET        reduce using rule 17 (become -> item ARROW item .)
+    RPARENTHESES    reduce using rule 17 (become -> item ARROW item .)
+
+  ! ARROW           [ shift and go to state 31 ]
+
+
+state 48
+
+    (20) structure -> LBRACE content RBRACE .
+
+    ARROW           reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    MULT            reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    LSHIFT          reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    AND             reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    OR              reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    EQUIVALENT      reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    COMMA           reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    $end            reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    RBRACE          reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    RBRACKET        reduce using rule 20 (structure -> LBRACE content RBRACE .)
+    RPARENTHESES    reduce using rule 20 (structure -> LBRACE content RBRACE .)
+
+
+state 49
+
+    (18) list -> LBRACKET content RBRACKET .
+
+    ARROW           reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    MULT            reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    LSHIFT          reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    AND             reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    OR              reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    EQUIVALENT      reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    COMMA           reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    $end            reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    RBRACE          reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    RBRACKET        reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+    RPARENTHESES    reduce using rule 18 (list -> LBRACKET content RBRACKET .)
+
+
+state 50
+
+    (21) macro -> ID LPARENTHESES content RPARENTHESES .
+
+    ARROW           reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    MULT            reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    LSHIFT          reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    AND             reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    OR              reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    EQUIVALENT      reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    COMMA           reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    $end            reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    RBRACE          reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    RBRACKET        reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
+    RPARENTHESES    reduce using rule 21 (macro -> ID LPARENTHESES content RPARENTHESES .)
 

@@ -1,5 +1,25 @@
 from collections import OrderedDict
-from typing import Any
+from typing import Any, Iterable
+
+class Expr(list):
+    pass
+
+class Become(list):
+    """
+        become.from, become.to for:
+        "from =>|-> to"
+    """
+    def __init__(self, iterable: Iterable) -> None:
+        super().__init__((obj for i, obj in enumerate(iterable) if i < 2))
+    
+    # read-only
+    @property
+    def before(self):
+        return self[0]
+    @property
+    def after(self):
+        return self[1]
+    
 
 class Structure(OrderedDict):
     """
@@ -26,11 +46,11 @@ class Structure(OrderedDict):
     def __repr__(self) -> str:
         return str(self)
 
-class Macro(Structure):
+class Macro(list):
     
     def __init__(self, *args, **kwargs) -> None:
         self.name = kwargs.pop('name', None)
-        super().__init__(*args, **kwargs)
+        list.__init__(self, *args, **kwargs)
 
 class Item:
 
@@ -55,5 +75,5 @@ class Item:
 class Time(str):
     pass
 
-class _Ellipsis(str):
+class Addrof(str):
     pass

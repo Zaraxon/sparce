@@ -1,0 +1,146 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> ioctlTCGETSargs
+Rule 1     ioctlTCGETSargs -> fd COMMA TCGETStag COMMA TCGETStermios
+Rule 2     fd -> INTEGER
+Rule 3     TCGETStermios -> LBRACE TCGETSargstring RBRACE
+Rule 4     TCGETSargstring -> TCGETSarg
+Rule 5     TCGETSargstring -> ELLIPSIS
+Rule 6     TCGETSargstring -> TCGETSarg TCGETSargstring
+
+Terminals, with rules where they appear
+
+COMMA                : 1 1
+ELLIPSIS             : 5
+INTEGER              : 2
+LBRACE               : 3
+RBRACE               : 3
+TCGETSarg            : 4 6
+TCGETStag            : 1
+error                : 
+
+Nonterminals, with rules where they appear
+
+TCGETSargstring      : 3 6
+TCGETStermios        : 1
+fd                   : 1
+ioctlTCGETSargs      : 0
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . ioctlTCGETSargs
+    (1) ioctlTCGETSargs -> . fd COMMA TCGETStag COMMA TCGETStermios
+    (2) fd -> . INTEGER
+
+    INTEGER         shift and go to state 3
+
+    ioctlTCGETSargs                shift and go to state 1
+    fd                             shift and go to state 2
+
+state 1
+
+    (0) S' -> ioctlTCGETSargs .
+
+
+
+state 2
+
+    (1) ioctlTCGETSargs -> fd . COMMA TCGETStag COMMA TCGETStermios
+
+    COMMA           shift and go to state 4
+
+
+state 3
+
+    (2) fd -> INTEGER .
+
+    COMMA           reduce using rule 2 (fd -> INTEGER .)
+
+
+state 4
+
+    (1) ioctlTCGETSargs -> fd COMMA . TCGETStag COMMA TCGETStermios
+
+    TCGETStag       shift and go to state 5
+
+
+state 5
+
+    (1) ioctlTCGETSargs -> fd COMMA TCGETStag . COMMA TCGETStermios
+
+    COMMA           shift and go to state 6
+
+
+state 6
+
+    (1) ioctlTCGETSargs -> fd COMMA TCGETStag COMMA . TCGETStermios
+    (3) TCGETStermios -> . LBRACE TCGETSargstring RBRACE
+
+    LBRACE          shift and go to state 8
+
+    TCGETStermios                  shift and go to state 7
+
+state 7
+
+    (1) ioctlTCGETSargs -> fd COMMA TCGETStag COMMA TCGETStermios .
+
+    $end            reduce using rule 1 (ioctlTCGETSargs -> fd COMMA TCGETStag COMMA TCGETStermios .)
+
+
+state 8
+
+    (3) TCGETStermios -> LBRACE . TCGETSargstring RBRACE
+    (4) TCGETSargstring -> . TCGETSarg
+    (5) TCGETSargstring -> . ELLIPSIS
+    (6) TCGETSargstring -> . TCGETSarg TCGETSargstring
+
+    TCGETSarg       shift and go to state 10
+    ELLIPSIS        shift and go to state 11
+
+    TCGETSargstring                shift and go to state 9
+
+state 9
+
+    (3) TCGETStermios -> LBRACE TCGETSargstring . RBRACE
+
+    RBRACE          shift and go to state 12
+
+
+state 10
+
+    (4) TCGETSargstring -> TCGETSarg .
+    (6) TCGETSargstring -> TCGETSarg . TCGETSargstring
+    (4) TCGETSargstring -> . TCGETSarg
+    (5) TCGETSargstring -> . ELLIPSIS
+    (6) TCGETSargstring -> . TCGETSarg TCGETSargstring
+
+    RBRACE          reduce using rule 4 (TCGETSargstring -> TCGETSarg .)
+    TCGETSarg       shift and go to state 10
+    ELLIPSIS        shift and go to state 11
+
+    TCGETSargstring                shift and go to state 13
+
+state 11
+
+    (5) TCGETSargstring -> ELLIPSIS .
+
+    RBRACE          reduce using rule 5 (TCGETSargstring -> ELLIPSIS .)
+
+
+state 12
+
+    (3) TCGETStermios -> LBRACE TCGETSargstring RBRACE .
+
+    $end            reduce using rule 3 (TCGETStermios -> LBRACE TCGETSargstring RBRACE .)
+
+
+state 13
+
+    (6) TCGETSargstring -> TCGETSarg TCGETSargstring .
+
+    RBRACE          reduce using rule 6 (TCGETSargstring -> TCGETSarg TCGETSargstring .)
+
