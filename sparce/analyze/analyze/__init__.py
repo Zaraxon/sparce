@@ -1,2 +1,1 @@
-from .activity import activities, Activity
-from .datatrans import data_in, data_out
+from .socket import sockactions, SocketActivity

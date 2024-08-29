@@ -1,6 +1,6 @@
 *.pyc
 test/
 data/
-test.py
+test*
 .vscode
 NOTE

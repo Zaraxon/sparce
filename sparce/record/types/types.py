@@ -29,7 +29,7 @@ class Structure(OrderedDict):
     def __getitem__(self, key: Any) -> Any:
         if isinstance(key, int):
             try:
-                return self[self.keys()[key]]
+                return self[tuple(self.keys())[key]]
             except IndexError:
                 raise IndexError(f'trying indexing {key} out of {len(self.keys())} members')
         elif isinstance(key, str):
