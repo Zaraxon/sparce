@@ -148,11 +148,6 @@ class _epoll_wait:
         return tuple(epolled_fds)
 
 
-class _dup:
-    @staticmethod
-    def fd(record: SyscallRecord, action=None):
-        return (record.arguments[0], record.retval) if record.retval
-
 sockmap = {
     'socket': _socket, 'bind': _bind, 'listen': _listen, 'accept': _accept,
     'connect': _connect, 'send': _send, 'recv': _recv, 'sendto': _sendto,
@@ -160,5 +155,5 @@ sockmap = {
     'setsockopt': _setsockopt, 'getsockname': _getsockname, 'getpeername': _getpeername, 'ioctl': _ioctl,
     'poll': _poll, 'select': _select, '_newselect': _newselect, 'fcntl': _fcntl, 'fcntl64': _fcntl64,
     'epoll_create1': _epoll_create1, 'epoll_ctl': _epoll_ctl, 'epoll_wait': _epoll_wait,
-    'read': _read, 'write': _write, 'readv': _readv, 'writev': _writev, ''
+    'read': _read, 'write': _write, 'readv': _readv, 'writev': _writev
 }
