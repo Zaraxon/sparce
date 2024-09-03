@@ -33,19 +33,43 @@ class SyscallSuffix:
             'ERRORCODE': '|'.join(self.ERROR_CODES),
             'ERRORDESC': r'\(.*?\)'
         }
-        pattern = f'\s+=\s+(?P<RETVAL>{patterns["RETVAL"]})\s*(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
+
+        if self.unfinished:
+            return 
+
+        ### 返回值比所有其他的都重要
+        ### 匹配<num>.*?$, 但形如' = num'的内容可能在字符串中也出现, 所以在.*?中排除掉后双引号.
+        pattern = f'\s=\s((?P<RETVAL>{patterns["RETVAL"]})).*?$'
         m = re.search(pattern, line)
         if m is not None:
             d = m.groupdict()
-            self.retval, self.errorcode, self.errordesc, self.syscall_time = \
-                d.get('RETVAL'), d.get('ERRORCODE'), d.get('ERRORDESC'), d.get('SYSCALLTIME')
+            self.retval = d.get('RETVAL')
 
-            if self.retval is not None and self.retval != r'?':
+            if (self.retval is not None) and (self.retval != r'?'):
+                if len(self.retval) > 1 and self.retval[0] == '0' and self.retval[1] in '123456789': # oct
+                    self.retval = self.retval[0]+'o'+self.retval[1:]
                 self.retval = int(self.retval, 0)
             elif self.retval == r'?':
                 self.retval = None
             
+            ### 直接切掉后半段, 防止其他部分因为这部分保留了糟糕的数据而匹配失败
             self._line = self._line[:m.start(0)]
+            
+            ### 只有匹配到了retval, 其他才能匹配到
+            ### 跳过'\s+=\s+<RETVAL>'这一段
+            line = line[m.start(0):]
+            while line[0] in '= \t':
+                line = line[1:]
+            line = line[len(d.get('RETVAL')):]
+
+            ### 这一部分的格式经常变化, 尽量匹配, 不保证有
+            pattern = f'(?P<ERRORCODE>{patterns["ERRORCODE"]})?\s*(?P<ERRORDESC>{patterns["ERRORDESC"]})?\s*(?P<SYSCALLTIME>{patterns["SYSCALLTIME"]})?\s*$'
+            m = re.search(pattern, line)
+            if m is not None:
+                self.errorcode, self.errordesc, self.syscall_time = \
+                    d.get('ERRORCODE'), d.get('ERRORDESC'), d.get('SYSCALLTIME')
+        else:
+            raise SyscallParsingFailGeneralException(line=line)
             
 
 class CompletionStatus:
@@ -113,14 +137,17 @@ class SyscallFrame:
                 if line.startswith(f'{self.syscall}('):
                     line = line[len(f'{self.syscall}('): ]
             else:
-                assert False
+                raise SyscallParsingFailGeneralException(self.origin_line)
             self._line = line   
+
         elif self.resuming:
             if not hasattr(self, 'syscall'):
                 raise SyscallParsingFailGeneralException(self.origin_line)
             if line[-1] == ')':
                 line = line[:-1]
                 self._line = line
+        else:
+            raise SyscallParsingFailGeneralException(self.origin_line)
 
 class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, SyscallFrame):
 
@@ -211,7 +238,7 @@ class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, Syscal
             else:
                 to_string += f' -> '
                 if self.errorcode is None:
-                    if self.retval:
+                    if self.retval is not None:
                         to_string += f'{self.retval}'
                     else:
                         to_string += '?'

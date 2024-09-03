@@ -4,7 +4,7 @@ from ply import yacc
 
 from .lexer import tokens
 
-from ..types import Structure, Macro, Item, Time, Addrof, Become, Expr
+from ..types.types import Structure, Macro, Item, Time, Addrof, Become, Expr
 
 from .errors import ParserPanicError
 
@@ -20,22 +20,22 @@ from .errors import ParserPanicError
 """
 def p_expr0(p):
     r'expr : NOT expr'
-    p[0] = Expr((not_, p[2]))
+    p[0] = Expr(('NOT', p[2]))
 def p_expr2(p):
     r'expr : expr MULT expr'
-    p[0] = Expr((mul, p[1], p[3]))
+    p[0] = Expr(('MULT', p[1], p[3]))
 def p_expr4(p):
     r'expr : expr LSHIFT expr'
-    p[0] = Expr((lshift, p[1], p[3]))
+    p[0] = Expr(('LSHIFT', p[1], p[3]))
 def p_expr6(p):
     r'expr : expr AND expr'
-    p[0] = Expr((and_, p[1], p[3]))
+    p[0] = Expr(('AND', p[1], p[3]))
 def p_expr8(p):
     r'expr : expr OR expr'
-    p[0] = Expr((or_, p[1], p[3]))
+    p[0] = Expr(('OR', p[1], p[3]))
 def p_expr10(p):
     r'expr : expr EQUIVALENT expr'
-    p[0] = Expr((eq, p[1], p[3]))
+    p[0] = Expr(('EQUIVALENT', p[1], p[3]))
 def p_expr11(p):
     r'expr : item'
     p[0] = p[1]
@@ -89,7 +89,7 @@ def p_terminal8(p):
 
 def p_terminal9(p):
     r'terminal : ELLIPSIS'
-    p[0] = p[1]
+    p[0] = Ellipsis # 让user判断去, 这个东西往往是不希望有的, 如果有的话应该尽快在用户代码中报错
 
 """
     become : item ARROW item
@@ -112,7 +112,6 @@ def p_list0(p):
 def p_list1(p):
     r'list : LBRACKET RBRACKET'
     p[0] = tuple()
-    assert not any((isinstance(_, Item) for _ in p[2]))
 
 
 """
@@ -120,21 +119,23 @@ def p_list1(p):
 """
 def p_structure(p):
     r'structure : LBRACE content RBRACE'
-    stru = Structure()
+
+    keys, vals = [], []
     for item in p[2]:
         if isinstance(item, Item):
-            name, value = item.name if item.name is not None else f'__ANOYMOUS{len(stru.keys())}__', item.value
-            stru[name] = value
+            keys.append(item.name)
+            vals.append(item.value)
         else:
-            name, value = f'__ANOYMOUS{len(stru.keys())}__', item
-            stru[name] = value
-    p[0] = stru
+            keys.append(None)
+            vals.append(item)
+    p[0] = Structure(keys, vals)
+    del keys, vals
 """
     macro: ID LPARENTHESES content RPARENTHESES
 """
 def p_macro(p):
     r'macro : ID LPARENTHESES content RPARENTHESES'
-    p[0] = Macro(p[3], name=p[1])
+    p[0] = Macro((p[3], ), name=p[1])
     assert not any((isinstance(_, Item) for _ in p[3]))
 """
     content : 
@@ -191,8 +192,8 @@ def p_item5(p):
     p[0] = p[1]
 
 def p_error(t):
-    print('general parser error, token:', t)
-    print('\t next token', yacc.token())
+    # print('general parser error, token:', t)
+    # print('\t next token', yacc.token())
     raise ParserPanicError()    
 
 precedence = (

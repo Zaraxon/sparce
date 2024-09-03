@@ -1,1 +1,1 @@
-from .types import Item, Structure, Macro, Addrof, Time, Become, Expr
+from .types import Structure, Macro, Addrof, Time, Become, Expr
