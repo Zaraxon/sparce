@@ -251,6 +251,9 @@ class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, Syscal
         ### TODO: 这里应该和to_string逻辑分开
         return self.to_string()
 
+    def set_binary(self, binary: str):
+        self.binary = binary
+
     @property
     def unfinished(self) -> bool:
         return (self.former is True) and (self.latter is False)
