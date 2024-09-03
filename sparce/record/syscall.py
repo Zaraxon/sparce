@@ -6,8 +6,6 @@ from .prefix import Prefix
 from .arguments import Arguments
 from .errors import *
 
-
-
 class SyscallSuffix:
     """
         
