@@ -34,25 +34,37 @@ class Arguments:
         }
         
         line = self._line
-        
+        self.arguments, success = None, False
+
+        ### 
+        #   try every parser. 
+        #   raise ArgumentsParsingError if no parser success
+        #   pass any unexcepted exception to caller
+        #  
+
         # try general lexer first
         try:
             self.arguments = general_parser.parse(line, lexer=general_lexer)
+            success = True
         except (LexerPanicError, ParserPanicError):
-            self.arguments = None
-
-        if hasattr(self, 'syscall') and self.arguments is None:
+            pass
+            
+        if not success:
             for syscall_name, (parser, lexer) in parsers.items():
                 if self.syscall == syscall_name:
                     try:
                         self.arguments = parser.parse(line, lexer=lexer)
+                        success = True
                         break
                     except (LexerPanicError, ParserPanicError):
-                        self.arguments = None
+                        pass
         
-        if self.arguments is None:
+        if not success:
             raise ArgumentsParsingError(self._line)
         
+        if self.arguments is None:
+            self.arguments = []
+
         self._line = ''
     
     def to_string(self) -> str:

@@ -1,10 +1,12 @@
 from typing import TypeVar
-from collections.abc import Iterable
-
+from collections.abc import Iterable, Sequence
+from time import time
 from ..record import \
     SignalRecord, SyscallRecordNoArg, SignalParsingFailException, \
     SyscallRecord, SyscallParsingFailGeneralException, ResumingUnfinishedException, \
     UnexceptedRecord, UnexpectedParsingFailException
+
+_DEBUG = False
 
 class MultiLineError(Exception):
     """
@@ -49,10 +51,12 @@ def parse_as(line: str, _t: RecordType) -> RecordType | None:
         line: 
         _t: 指定的解析类型, 例如SyscallRecord
     """
-
+    line = line.replace('\x00', '')
     try:
         return _t(line)
     except parse_as.ExceptionMap[_t] as e:
+        if _DEBUG:
+            print('warning line parsing failed, dropping...', line)
         return None
 
 from ply.lex import LexError
@@ -70,7 +74,7 @@ setattr(
 
 
 Syscall = TypeVar('Syscall', SyscallRecord, SyscallRecordNoArg)
-def match_syscalls(syscall_records: Iterable[Syscall]) -> tuple[list[Syscall], list[Syscall], list[Syscall]]:
+def match_syscalls(syscall_records: Sequence[Syscall]) -> tuple[list[Syscall], list[Syscall], list[Syscall]]:
     """
         排好序的一组SyscallRecord/SyscallRecordNoArg中, 
         生成合并后的一组对应的内容. 
@@ -83,30 +87,35 @@ def match_syscalls(syscall_records: Iterable[Syscall]) -> tuple[list[Syscall], l
     """
 
     syscall_records = list(syscall_records)
+    # _total, _batch, _count = len(syscall_records), len(syscall_records) // 100, 0
     completed = []
     unfinished = []
     resuming = []
-    while syscall_records:
-        sr: SyscallRecord = syscall_records.pop(0)
+    # timestamp = time()
+    for i in range(len(syscall_records)): # python list 的增删改查开销巨大
+        sr: SyscallRecord = syscall_records[i]
         if sr.complete:
             completed.append(sr)
         elif sr.unfinished:
-            unfinished.append(sr)
+            unfinished.append(i)
         elif sr.resuming:
-            # print('->', str(sr))
             i_unf, _the_merged = None, None
-            for i, sr_unfinished in reversed(list(enumerate(unfinished))):
+            for j in range(len(unfinished)):
+                sr_unfinished = syscall_records[unfinished[-j]]
                 if sr_unfinished.syscall == sr.syscall:
                     _the_merged = sr.merge(sr_unfinished)
                     if _the_merged is not None:
-                        i_unf = i
+                        i_unf = -j
                         break
-
             if isinstance(i_unf, int) and i_unf>=0 and _the_merged :
                 completed.append(_the_merged)
                 unfinished.pop(i_unf)
             else:
-                resuming.append(sr)
+                resuming.append(i)
+        
+        # _count += 1
+        # if _count % _batch == 0:
+        #     print(f'\t{100*_count/_total:.4f}% in {time()-timestamp:.4f}s')
                         
 
     return completed, unfinished, resuming
