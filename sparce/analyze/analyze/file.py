@@ -16,7 +16,7 @@ class FileActivity:
         不要求FileActivity的操作是合逻辑的
     """
     @staticmethod
-    def __bufdata(record: SyscallRecord) -> tuple[bytes, int]:
+    def _bufdata(record: SyscallRecord) -> tuple[bytes, int]:
 
         #   对于一个SyscallRecord来说, count和buf有四种情况
         #   count = -1/>=0, buf=None/bytes
@@ -40,7 +40,7 @@ class FileActivity:
                 return (b'', count)
             
     @staticmethod
-    def __iovdata(record: SyscallRecord) -> tuple[bytes, int]:
+    def _iovdata(record: SyscallRecord) -> tuple[bytes, int]:
 
         handler = filesyscalls[record.syscall]
 
@@ -54,7 +54,7 @@ class FileActivity:
                 return (data, count)
             else:
                 return (b'', count)
-
+    
     def __init__(
             self, 
             records: Sequence[SyscallRecord],
@@ -72,21 +72,20 @@ class FileActivity:
             elif r.syscall == 'openat':
                 _pathname = FileOperation.OPENAT.pathname(r)
                 break    
-        self._pathname = _pathname
+        self.__pathname = _pathname
 
         # read & write
-                # find data
         self.__dataflows_in, self.__dataflows_out = [], []
         for r in self.__records:
             if r.syscall in {'read', 'write'}:
-                data, count = self.__bufdata(r)
+                data, count = self._bufdata(r)
                 if count > 0:
                     if r.syscall in {'read'}:
                         self.__dataflows_in.append((data, count))
                     else:
                         self.__dataflows_out.append((data, count))
-            elif r.syscall in {'readv'}:
-                data, count = self.__iovdata(r)
+            elif r.syscall in {'readv', 'writev'}:
+                data, count = self._iovdata(r)
                 if count > 0:
                     if r.syscall in {'readv'}:
                         self.__dataflows_in.append((data, count))
@@ -95,10 +94,35 @@ class FileActivity:
                         
         self.__dataflows_in, self.__dataflows_out = \
             tuple(self.__dataflows_in), tuple(self.__dataflows_out)
+        
+        # flags
+        self.__flags = None
+        for r in self.__records:
+            if r.syscall == 'open' and r.retval >= 0:
+                flags = FileOperation.OPEN.flags(r)
+                if flags is not None:
+                    self.__flags = flags
+                    break
+            elif r.syscall == 'openat':
+                flags = FileOperation.OPENAT.flags(r)
+                if flags is not None and r.retval >= 0:
+                    self.__flags = flags
+                    break
+        
+        # datafaileds
+        self.__datafaileds = []
+        for r in self.__records:
+            if r.syscall in {'read', 'readv', 'write', 'writev'} and r.retval == -1:
+                self.__datafaileds.append(r)
+        self.__datafaileds = tuple(self.__datafaileds)
+    
+    @property
+    def records(self):
+        return tuple(self.__records)    
 
     @property
     def pathname(self):            
-        return self._pathname
+        return self.__pathname
     
     @property
     def reads(self):
@@ -107,6 +131,23 @@ class FileActivity:
     @property
     def writes(self):
         return self.__dataflows_out
+
+    @property
+    def datafaileds(self):
+        return self.__datafaileds
+    
+    @property
+    def flags(self):
+        return self.__flags
+    
+    @property
+    def open_first(self):
+        for r in self.__records:
+            if r.syscall == 'open':
+                return r
+            elif r.syscall == 'openat':
+                return r
+        return None
     
 
 import time
@@ -164,3 +205,15 @@ def group_as_pathname(activities: Collection[FileActivity]) -> Collection[Collec
         pathname_dict[key].add(act)
         
     return tuple(pathname_dict.values())
+
+def group_as_binarypath(activities: Collection) -> Collection[Collection]:
+    binaryname_dict = {}
+    for act in activities:
+        if act.binary is None:
+            continue
+        key = hash(act.binarypath)
+        if key not in binaryname_dict.keys():
+            binaryname_dict[key] = set()
+        binaryname_dict[key].add(act)
+        
+    return tuple(binaryname_dict.values())

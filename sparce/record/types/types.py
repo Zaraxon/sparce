@@ -106,10 +106,10 @@ class Structure(Mapping):
     def __iter__(self) -> Iterator[str]:
         return iter(self.__index2key[i] for i in len(self.keys()))
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f'<{self.__class__} {id(self)}>'
     
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return '{'+''.join([f'{key}={value} ' for key, value in self.items()]).strip()+'}'
 
 class Macro(tuple):

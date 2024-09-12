@@ -6,10 +6,22 @@
 
 from dataclasses import dataclass
 
-from typing import Sequence, Collection
+from typing import Sequence, Collection, Any
 
 from ...record import SyscallRecord
-from ...record.types import Structure
+from ...record.types import Structure, Expr
+
+import re
+
+def error_desc(record: SyscallRecord) -> str:
+    """
+        TODO: 找到更好的方式替代掉在这里写正则
+    """
+    m = re.match("\s+\([a-zA-Z0-9 ]*?\)\s*$", record.origin_line)
+    if m is None:
+        return None
+    else:
+        return m.group(0).strip().lstrip('(').rstrip(')')
 
 def mk_getfds(*_argpos):
     """
@@ -24,7 +36,7 @@ def mk_getfds(*_argpos):
             elif p == -1 and record.retval >= 0:
                 fds.append(record.retval)
             else:
-                fds.append(None)
+                pass
         return tuple(fds)
     return getfds
 
@@ -208,6 +220,7 @@ class _writev:
     def iov(record: SyscallRecord, action=None) -> Sequence|None:
         if isinstance(record.arguments[1], Sequence):
             return record.arguments[1]
+        
 class _fcntl:
     fd = mk_getfds(0)
 class _fcntl64:
@@ -244,6 +257,23 @@ class _open:
             return None
         else:
             raise ValueError('_open: invalid pathname. record:', str(record))
+    
+    @staticmethod
+    def flags(record: SyscallRecord, action=None) -> str:
+        def flatten(expr: Expr|int|str) -> str:
+            if isinstance(expr, int):
+                return oct(expr)
+            elif isinstance(expr, str):
+                return expr
+            elif isinstance(expr, Expr):
+                if len(expr) == 1:
+                    return expr[0] + flatten(expr[1])
+                elif len(expr) == 2:
+                    return flatten(expr[1]) + expr[0] + flatten(expr[2])
+            else:
+                raise TypeError(expr)
+            
+        return flatten(record.arguments[1])
 
 class _openat:
     @staticmethod
@@ -266,6 +296,24 @@ class _openat:
             return None
         else:
             raise ValueError('_open: invalid pathname. record:', str(record))
+        
+    @staticmethod
+    def flags(record: SyscallRecord, action=None) -> str|None:
+
+        def flatten(expr: Expr|int|str) -> str:
+            if isinstance(expr, int):
+                return oct(expr)
+            elif isinstance(expr, str):
+                return expr
+            elif isinstance(expr, Expr):
+                if len(expr) == 2:
+                    return expr[0] + flatten(expr[1])
+                elif len(expr) == 3:
+                    return flatten(expr[1]) + expr[0] + flatten(expr[2])
+            else:
+                raise TypeError(expr)
+        
+        return flatten(record.arguments[2])
 
 class _lseek:
     fd = mk_getfds(0)
@@ -336,6 +384,9 @@ syscalls = {
     'fsync': _fsync, 'fdatasync': _fdatasync, 'dup': _dup, 'dup2': _dup2, 
     'fcntl': _fcntl, 'ioctl': _ioctl, 'openat': _openat
 }
+
+for handler in syscalls.values():
+    setattr(handler, 'error_desc', error_desc)
 
 filesyscalls = {
     'ioctl': _ioctl, 'fcntl': _fcntl, 'fcntl64': _fcntl64,

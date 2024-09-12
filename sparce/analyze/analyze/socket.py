@@ -86,17 +86,10 @@ class SocketActivity:
         # find data
         self.__dataflows_in, self.__dataflows_out = [], []
         for r in self.__records:
-            if r.syscall in {'read', 'write', 'send', 'recv', 'sendto', 'recvfrom'}:
+            if r.syscall in {'send', 'recv', 'sendto', 'recvfrom'}:
                 data, count = self.__bufdata(r)
                 if count > 0:
-                    if r.syscall in {'read', 'recv', 'recvfrom'}:
-                        self.__dataflows_in.append((data, count))
-                    else:
-                        self.__dataflows_out.append((data, count))
-            elif r.syscall in {'readv', 'writev'}:
-                data, count = self.__iovdata(r)
-                if count > 0:
-                    if r.syscall in {'readv'}:
+                    if r.syscall in {'recv', 'recvfrom'}:
                         self.__dataflows_in.append((data, count))
                     else:
                         self.__dataflows_out.append((data, count))
@@ -123,6 +116,49 @@ class SocketActivity:
                     self.__dataflows_in.append((msg, count))
         self.__dataflows_in, self.__dataflows_out = \
             tuple(self.__dataflows_in), tuple(self.__dataflows_out)
+        
+        # datafaileds
+        self.__datafaileds = []
+        for r in self.__records:
+            if r.syscall in {'read', 'readv', 'write', 'writev'} and r.retval == -1:
+                self.__datafaileds.append(r)
+        self.__datafaileds = tuple(self.__datafaileds)
+
+        # role
+        self.__role = None
+        for r in self.__records:
+            if r.syscall in {'accept', 'listen', 'bind'} and r.retval >= 0:
+                self.__role = 'server'
+                break
+            elif r.syscall in {'connect'} and r.retval >= 0:
+                self.__role = 'client'
+                break
+        
+        # listen status
+        self.__listenstatus = None
+        if self.role == 'client':
+             for r in self.__records:
+                if r.syscall in {'connect'} and r.retval >= 0:
+                    self.__listenstatus = 'established'
+                    break
+        elif self.role == 'server':
+            for r in self.__records:
+                if r.syscall == 'bind':
+                    if r.retval == 0:
+                        self.__listenstatus = 'bind'
+                    else:
+                        break
+                elif r.syscall == 'listen' and self.__listenstatus == 'bind':
+                    if r.retval == 0:
+                        self.__listenstatus = 'listen'
+                    else:
+                        break
+                elif r.syscall == 'accept' and self.__listenstatus == 'listen':
+                    if r.retval >= 0:
+                        self.__listenstatus = 'accept'
+                        break
+                    else:
+                        break
             
     @property
     def addr(self):
@@ -134,6 +170,19 @@ class SocketActivity:
     @property
     def writes(self) -> list[tuple[bytes, int]]:
         return self.__dataflows_out
+    
+    @property
+    def datafaileds(self):
+        return self.__datafaileds
+    
+    @property
+    def role(self):
+        return self.__role
+    
+    @property
+    def listenstatus(self):
+        return self.__listenstatus
+
 
 import time
 def sockactivities(records: Sequence[SyscallRecord]) -> Collection[SocketActivity]:

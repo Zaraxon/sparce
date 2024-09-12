@@ -20,22 +20,22 @@ from .errors import ParserPanicError
 """
 def p_expr0(p):
     r'expr : NOT expr'
-    p[0] = Expr(('NOT', p[2]))
+    p[0] = Expr(('~', p[2]))
 def p_expr2(p):
     r'expr : expr MULT expr'
-    p[0] = Expr(('MULT', p[1], p[3]))
+    p[0] = Expr(('*', p[1], p[3]))
 def p_expr4(p):
     r'expr : expr LSHIFT expr'
-    p[0] = Expr(('LSHIFT', p[1], p[3]))
+    p[0] = Expr(('<<', p[1], p[3]))
 def p_expr6(p):
     r'expr : expr AND expr'
-    p[0] = Expr(('AND', p[1], p[3]))
+    p[0] = Expr(('&&', p[1], p[3]))
 def p_expr8(p):
     r'expr : expr OR expr'
-    p[0] = Expr(('OR', p[1], p[3]))
+    p[0] = Expr(('|', p[1], p[3]))
 def p_expr10(p):
     r'expr : expr EQUIVALENT expr'
-    p[0] = Expr(('EQUIVALENT', p[1], p[3]))
+    p[0] = Expr(('==', p[1], p[3]))
 def p_expr11(p):
     r'expr : item'
     p[0] = p[1]
