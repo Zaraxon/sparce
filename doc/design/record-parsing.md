@@ -32,3 +32,11 @@ class SyscallRecordNoArg(Record, Prefix, CompletionStatus, SyscallSuffix, Syscal
 5. `SyscallFrame`, 剥除`mmap2(...)`这个外壳, 暴露出里面的参数
 6. `SyscallRecordNoArg`, 仅仅是一些检查
 7. `Argument`, 处理剩下所有的参数. 
+
+### parsing structured data with ply
+
+在strace的man手册中大致列举了strace输出的log中如何表示system call的各种参数(整数, 字符串, iovec, etc.). sparce主要使用ply(python lex & yacc) 解析strace log中包含结构化数据的部分.
+
+> 在这个项目的早期版本, 对于system call中被decoder解析出来的部分是通过(小心翼翼地)括号匹配逐步解析出一层层结构的. 但这种做法在扩展到全部system call或QEMU_STRACE这样不十分标准的输出格式时遇到了不少麻烦.
+
+作为LALR解析器, ply允许构建整数, 字符串, 左大括号, 逗号等基本元素的lexer, 然后将lexer解析出的一个个token根据parser中定义的规则进行移进/归约, 组成结构化的python原语. 

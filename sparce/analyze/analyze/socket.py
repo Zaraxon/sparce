@@ -159,6 +159,10 @@ class SocketActivity:
                         break
                     else:
                         break
+                elif r.syscall == 'accept' and self.__listenstatus is None:
+                    if r.retval >= 0:
+                        self.__listenstatus = 'accept'
+                        break
             
     @property
     def addr(self):
